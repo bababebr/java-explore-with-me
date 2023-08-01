@@ -6,9 +6,6 @@ import lombok.experimental.FieldDefaults;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-/*
-TODO Refactor Hit and HitDto: Hit - Instant & HitDto - LocalDateTime
- */
 @Entity
 @Table(name = "Service_Hits")
 @FieldDefaults(level = AccessLevel.PRIVATE)

@@ -65,9 +65,7 @@ public class StatServerService implements IStatServerService {
         }
         dtoShort.sort((o1, o2) -> (o1.getHits() > o2.getHits()) ? -1 :
                 (o1.getHits() < o2.getHits()) ? 1 : 0);
-        /*
-        TODO maybe better to delete duplication in sql query? In this case other hits counting algorithm requires
-         */
+
         List<HitDtoShort> result = dtoShort.stream().distinct().collect(Collectors.toList());
         return result;
     }

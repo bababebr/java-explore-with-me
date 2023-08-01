@@ -18,9 +18,9 @@
 	<packaging>pom</packaging>
 
 	<modules>
-		<module>gen/stat-client</module>
-		<module>gen/stat-dto</module>
-		<module>gen/stat-server</module>
+		<module>stat-client</module>
+		<module>stat-dto</module>
+		<module>stat-server</module>
 	</modules>
 
 	<properties>
