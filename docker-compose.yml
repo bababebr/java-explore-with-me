@@ -24,7 +24,7 @@ services:
       - POSTGRES_DB=ewm
 
   stats-client:
-    build: stats-client
+    build: ./stats-client
     image: explore-with-me-client
     container_name: explore-with-me-client
     ports:
