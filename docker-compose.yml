@@ -1,7 +1,7 @@
 version: '3.1'
 services:
   stats-server:
-    build: ./stats-server
+    build: ./stat-server
     image: explore-with-me-server
     container_name: explore-with-me-server
     ports:
@@ -24,7 +24,7 @@ services:
       - POSTGRES_DB=ewm
 
   stats-client:
-    build: ./stats-client
+    build: ./stat-client
     image: explore-with-me-client
     container_name: explore-with-me-client
     ports:
