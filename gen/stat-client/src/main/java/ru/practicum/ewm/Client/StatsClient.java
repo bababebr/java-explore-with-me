@@ -35,16 +35,16 @@ public class StatsClient extends BaseClient {
          * или во с клиента уходит null, а на сервер приходит пустой список []
          */
         String result;
-        if(uris != null) {
-            result =  uris.toString().substring(1, uris.toString().length()-1);
+        if (uris != null) {
+            result = uris.toString().substring(1, uris.toString().length() - 1);
         } else {
-            result =  null;
+            result = null;
         }
 
         HashMap<String, Object> parameters = new HashMap<>();
         parameters.put("start", start.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-        parameters.put( "end", end.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-        parameters.put( "uris", result);
+        parameters.put("end", end.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        parameters.put("uris", result);
         parameters.put("unique", unique);
 
         return get("/stats?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
