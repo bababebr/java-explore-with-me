@@ -12,5 +12,4 @@ public interface IStatServerService {
 
     List<HitDtoShort> get(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique);
 
-    List<HitDto> getAll();
 }

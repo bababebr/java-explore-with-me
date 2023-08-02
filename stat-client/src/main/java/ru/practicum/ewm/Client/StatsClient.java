@@ -17,6 +17,8 @@ import java.util.List;
 @Service
 public class StatsClient extends BaseClient {
 
+    public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     @Autowired
     public StatsClient(@Value("${EWM_SERVER_URL}") String serverUrl, RestTemplateBuilder builder) {
         super(
@@ -42,8 +44,8 @@ public class StatsClient extends BaseClient {
         }
 
         HashMap<String, Object> parameters = new HashMap<>();
-        parameters.put("start", start.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-        parameters.put("end", end.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        parameters.put("start", start.format(DATE_TIME_FORMATTER));
+        parameters.put("end", end.format(DATE_TIME_FORMATTER));
         parameters.put("uris", result);
         parameters.put("unique", unique);
 

@@ -52,12 +52,6 @@ public class StatServerService implements IStatServerService {
         return resultDto;
     }
 
-    @Override
-    public List<HitDto> getAll() {
-        List<HitDto> result = repository.findAll().stream().map(HitMapper::hitToDto).collect(Collectors.toList());
-        return result;
-    }
-
     private List<HitDtoShort> setHitForSingleUri(List<HitDtoShort> dtoShort, List<Hit> hits) {
         for (HitDtoShort dto : dtoShort) {
             long count = hits.stream().filter(h -> h.getUri().equals(dto.getUri())).count();

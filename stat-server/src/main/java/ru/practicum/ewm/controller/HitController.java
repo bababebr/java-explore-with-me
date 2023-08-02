@@ -31,12 +31,6 @@ public class HitController {
                                  @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
                                  @RequestParam(required = false) List<String> uris,
                                  @RequestParam(defaultValue = "false") boolean unique) {
-        System.out.println(uris + "server");
         return service.get(start, end, uris, unique);
-    }
-
-    @GetMapping("/hit/all")
-    public List<HitDto> getAll() {
-        return service.getAll();
     }
 }
