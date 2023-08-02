@@ -9,9 +9,9 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <name>Explore With Me Dto</name>
+    <name>Explore With Me Main</name>
 
-    <artifactId>explore-with-me-dto</artifactId>
+    <artifactId>ewm</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
 </project>

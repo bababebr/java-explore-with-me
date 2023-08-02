@@ -9,21 +9,23 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <name>Explore With Me Client</name>
+    <name>Explore With Me Stats</name>
 
-    <artifactId>explore-with-me-client</artifactId>
+    <artifactId>stats</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+
+    <modules>
+        <module>stat-client</module>
+        <module>stat-dto</module>
+        <module>stat-server</module>
+    </modules>
+    <packaging>pom</packaging>
     <dependencies>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
         </dependency>
-        <dependency>
-            <groupId>ru.practicum</groupId>
-            <artifactId>explore-with-me-dto</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
+
     </dependencies>
 
     <build>
