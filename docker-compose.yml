@@ -1,9 +1,9 @@
 version: '3.1'
 services:
-  stats-server:
-    build: ./stat-server
-    image: explore-with-me-server
-    container_name: explore-with-me-server
+  stats:
+    build: ./stats/stat-server
+    image: stats
+    container_name: explore-with-me-stats
     ports:
       - "9090:9090"
     depends_on:
@@ -12,7 +12,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/ewm
       - SPRING_DATASOURCE_USERNAME=ewm
       - SPRING_DATASOURCE_PASSWORD=ewm
-
+      - EWM_SERVER_URL=http://stats-server:9090
   db:
     image: postgres:13.7-alpine
     container_name: db
@@ -23,13 +23,11 @@ services:
       - POSTGRES_USER=ewm
       - POSTGRES_DB=ewm
 
-  stats-client:
-    build: ./stat-client
-    image: explore-with-me-client
-    container_name: explore-with-me-client
+  emw:
+    build: ./ewm
+    image: ewm
+    container_name: ewm
     ports:
       - "8080:8080"
     depends_on:
-      - stats-server
-    environment:
-      - EWM_SERVER_URL=http://stats-server:9090
+      - stats
