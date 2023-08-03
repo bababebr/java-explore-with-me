@@ -8,6 +8,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.ewm.dto.HitDto;
+import ru.practicum.ewm.dto.HitRequestDTO;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -31,23 +32,13 @@ public class StatsClient extends BaseClient {
 
     public ResponseEntity<Object> get(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
 
-        /**
-         * TODO Убрать костыль с uris, когда с client'a уходит [/event/1, /event/2], a na server приходит [[/event/1, /event/2]]
-         * во время третьего теста, пришлось делать условие для удаления внешних скобок
-         * или во с клиента уходит null, а на сервер приходит пустой список []
-         */
-        String result;
-        if (uris != null) {
-            result = uris.toString().substring(1, uris.toString().length() - 1);
-        } else {
-            result = null;
-        }
+        HitRequestDTO requestDTO = HitRequestDTO.create(start, end, String.join(", ", uris), unique);
 
         HashMap<String, Object> parameters = new HashMap<>();
-        parameters.put("start", start.format(DATE_TIME_FORMATTER));
-        parameters.put("end", end.format(DATE_TIME_FORMATTER));
-        parameters.put("uris", result);
-        parameters.put("unique", unique);
+        parameters.put("start", requestDTO.getStart().format(DATE_TIME_FORMATTER));
+        parameters.put("end", requestDTO.getEnd().format(DATE_TIME_FORMATTER));
+        parameters.put("uris", requestDTO.getUris());
+        parameters.put("unique", requestDTO.isUnique());
 
         return get("/stats?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
     }
