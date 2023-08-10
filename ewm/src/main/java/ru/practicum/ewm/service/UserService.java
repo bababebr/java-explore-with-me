@@ -1,6 +1,7 @@
 package ru.practicum.ewm.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.mapper.UserMapper;
 import ru.practicum.ewm.models.user.User;
@@ -34,7 +35,9 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public List<UserDto> getUsers(List<Long> ids) {
-        return repository.findAllById(ids).stream().map(UserMapper::userToDto).collect(Collectors.toList());
+    public List<UserDto> getUsers(List<Long> ids, int from, int size) {
+        return repository.findAllById(ids, PageRequest.of(from, size)).stream()
+                .map(UserMapper::userToDto)
+                .collect(Collectors.toList());
     }
 }

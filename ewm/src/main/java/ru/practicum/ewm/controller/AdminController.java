@@ -6,6 +6,7 @@ import ru.practicum.ewm.models.user.UserDto;
 import ru.practicum.ewm.service.interfaces.IUserService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 @RestController
@@ -25,8 +26,10 @@ public class AdminController {
     }
 
     @GetMapping("/users")
-    public List<UserDto> get(List<Long> usersId) {
-        return userService.getUsers(usersId);
+    public List<UserDto> get(List<Long> usersId,
+                             @RequestParam(defaultValue = "0") @Min(0) int from,
+                             @RequestParam(defaultValue = "10") @Min(1) int size) {
+        return userService.getUsers(usersId, from, size);
     }
 
     @DeleteMapping("/users/{userId}")
