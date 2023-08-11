@@ -1,7 +1,7 @@
 package ru.practicum.ewm.service.interfaces;
 
-import ru.practicum.ewm.models.request.RequestDto;
-import ru.practicum.ewm.models.request.RequestUpdateDto;
+import ru.practicum.ewm.models.request.eventRequest.RequestDto;
+import ru.practicum.ewm.models.request.eventRequest.RequestUpdateDto;
 
 import java.util.List;
 

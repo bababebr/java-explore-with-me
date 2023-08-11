@@ -2,9 +2,7 @@ package ru.practicum.ewm.models.event;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import ru.practicum.ewm.enums.State;
 import ru.practicum.ewm.models.category.CategoryDto;
-import ru.practicum.ewm.models.location.Location;
 import ru.practicum.ewm.models.user.UserDtoShort;
 
 import javax.validation.constraints.NotNull;

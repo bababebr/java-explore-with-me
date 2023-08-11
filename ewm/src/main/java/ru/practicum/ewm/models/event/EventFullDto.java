@@ -2,7 +2,7 @@ package ru.practicum.ewm.models.event;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import ru.practicum.ewm.enums.State;
+import ru.practicum.ewm.enums.EventStatus;
 import ru.practicum.ewm.models.category.CategoryDto;
 import ru.practicum.ewm.models.location.Location;
 import ru.practicum.ewm.models.user.UserDtoShort;
@@ -36,7 +36,7 @@ public class EventFullDto {
     Integer participantLimit = 0;
     LocalDateTime publishedOn = LocalDateTime.now();
     Boolean requestModeration = true;
-    State state = State.PENDING;
+    EventStatus state = EventStatus.PENDING;
     @NotNull
     String title;
     Integer views = 0;

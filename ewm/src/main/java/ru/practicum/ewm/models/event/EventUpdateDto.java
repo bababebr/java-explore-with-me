@@ -2,7 +2,7 @@ package ru.practicum.ewm.models.event;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import ru.practicum.ewm.enums.State;
+import ru.practicum.ewm.enums.EventStatus;
 import ru.practicum.ewm.models.location.Location;
 
 import java.time.LocalDateTime;
@@ -21,6 +21,6 @@ public class EventUpdateDto {
     Boolean paid;
     Integer participantLimit;
     Boolean requestModeration;
-    State state;
+    EventStatus state;
     String title;
 }

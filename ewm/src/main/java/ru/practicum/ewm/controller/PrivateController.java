@@ -6,8 +6,8 @@ import ru.practicum.ewm.models.event.EventFullDto;
 import ru.practicum.ewm.models.event.EventShortDto;
 import ru.practicum.ewm.models.event.EventUpdateDto;
 import ru.practicum.ewm.models.event.NewEventDto;
-import ru.practicum.ewm.models.request.RequestDto;
-import ru.practicum.ewm.models.request.RequestUpdateDto;
+import ru.practicum.ewm.models.request.eventRequest.RequestDto;
+import ru.practicum.ewm.models.request.eventRequest.RequestUpdateDto;
 import ru.practicum.ewm.service.interfaces.IEventService;
 import ru.practicum.ewm.service.interfaces.IRequestService;
 
@@ -31,8 +31,9 @@ public class PrivateController {
     Private: Event
      */
     @GetMapping("/{userId}/events")
-    public List<EventShortDto> getUserEvents(@PathVariable Long userId) {
-        return eventService.getUserOwnEvents(userId);
+    public List<EventShortDto> getUserEvents(@PathVariable Long userId, @RequestParam(defaultValue = "0") int from,
+                                             @RequestParam(defaultValue = "10") int size) {
+        return eventService.getUserOwnEvents(userId, from, size);
     }
 
     @PostMapping("/{userId}/events/")

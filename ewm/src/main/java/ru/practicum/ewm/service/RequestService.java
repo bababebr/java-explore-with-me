@@ -2,8 +2,8 @@ package ru.practicum.ewm.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.practicum.ewm.models.request.RequestDto;
-import ru.practicum.ewm.models.request.RequestUpdateDto;
+import ru.practicum.ewm.models.request.eventRequest.RequestDto;
+import ru.practicum.ewm.models.request.eventRequest.RequestUpdateDto;
 import ru.practicum.ewm.repository.RequestRepository;
 import ru.practicum.ewm.service.interfaces.IRequestService;
 

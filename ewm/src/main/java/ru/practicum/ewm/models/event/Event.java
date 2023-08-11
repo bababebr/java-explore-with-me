@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.practicum.ewm.enums.State;
+import ru.practicum.ewm.enums.EventStatus;
 import ru.practicum.ewm.models.category.Category;
 import ru.practicum.ewm.models.location.Location;
 import ru.practicum.ewm.models.user.User;
@@ -32,18 +32,18 @@ public class Event {
     @Column(name = "event_date")
     LocalDateTime eventDate;
     @ManyToOne
-    @JoinColumn(name = "user")
+    @JoinColumn(name = "initiator")
     User initiator;
     @ManyToOne
     @JoinColumn(name = "location")
     Location location;
-    Boolean pain;
+    Boolean paid;
     @Column(name = "participant_limit")
     Integer participantLimit;
     @Column(name = "request_moderation")
     Boolean requestModeration;
     @Enumerated(EnumType.STRING)
-    State state;
+    EventStatus state;
     String title;
 
 }

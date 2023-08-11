@@ -1,8 +1,8 @@
-package ru.practicum.ewm.models.request;
+package ru.practicum.ewm.models.request.eventRequest;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import ru.practicum.ewm.enums.State;
+import ru.practicum.ewm.enums.EventStatus;
 
 import javax.validation.constraints.NotNull;
 
@@ -19,5 +19,5 @@ public class RequestDto {
     @NotNull
     Long userId;
     @NotNull
-    State state;
+    EventStatus status;
 }

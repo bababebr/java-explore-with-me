@@ -1,10 +1,10 @@
-package ru.practicum.ewm.models.request;
+package ru.practicum.ewm.models.request.eventRequest;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.practicum.ewm.enums.State;
+import ru.practicum.ewm.enums.EventStatus;
 import ru.practicum.ewm.models.event.Event;
 import ru.practicum.ewm.models.user.User;
 
@@ -27,6 +27,6 @@ public class Request {
     @JoinColumn(name = "event_id")
     Event event;
     @Enumerated(EnumType.STRING)
-    State state;
+    EventStatus status;
 
 }
