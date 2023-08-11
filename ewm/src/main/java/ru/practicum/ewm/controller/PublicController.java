@@ -32,9 +32,10 @@ public class PublicController {
                                          @RequestParam(required = false) LocalDateTime rangeStart,
                                          @RequestParam(required = false) LocalDateTime rangeEnd,
                                          @RequestParam boolean onlyAvailable,
+                                         @RequestParam Sort sort,
                                          @RequestParam(defaultValue = "0") @Min(0) int from,
                                          @RequestParam(defaultValue = "10") @Min(1) int size) {
-       return eventService.getEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, from, size);
+        return eventService.getEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
     }
 
 }

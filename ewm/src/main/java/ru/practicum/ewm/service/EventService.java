@@ -50,8 +50,11 @@ public class EventService implements IEventService {
 
     @Override
     public List<EventShortDto> getEvents(String text, List<Integer> categories, boolean paid, LocalDateTime rangeStart,
-                          LocalDateTime rangeEnd, boolean onlyAvailable, int from, int size) {
-        return repository.findEvents(text, categories, paid).stream().map(EventMapper::eventToShort).collect(Collectors.toList());
+                          LocalDateTime rangeEnd, boolean onlyAvailable, Sort sort, int from, int size) {
+
+        return repository.findEvents(text, categories, paid).stream().map(EventMapper::eventToShort)
+                .collect(Collectors.toList());
+
     }
 
     private List<EventShortDto> setEventShortDto(List<Event> events) {
