@@ -36,7 +36,7 @@ public class UserService implements IUserService {
 
     @Override
     public List<UserDto> getUsers(List<Long> ids, int from, int size) {
-        return repository.findAllById(ids, PageRequest.of(from, size)).stream()
+        return repository.findAllByIds(ids, PageRequest.of(from, size)).stream()
                 .map(UserMapper::userToDto)
                 .collect(Collectors.toList());
     }

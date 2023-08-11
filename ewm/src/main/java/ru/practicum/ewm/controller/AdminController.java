@@ -2,7 +2,10 @@ package ru.practicum.ewm.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.ewm.models.category.CategoryDto;
+import ru.practicum.ewm.models.category.NewCategoryDto;
 import ru.practicum.ewm.models.user.UserDto;
+import ru.practicum.ewm.service.interfaces.ICategoryService;
 import ru.practicum.ewm.service.interfaces.IUserService;
 
 import javax.validation.Valid;
@@ -14,10 +17,12 @@ import java.util.List;
 public class AdminController {
 
     IUserService userService;
+    ICategoryService categoryService;
 
     @Autowired
-    public AdminController(IUserService userService) {
+    public AdminController(IUserService userService, ICategoryService categoryService) {
         this.userService = userService;
+        this.categoryService = categoryService;
     }
 
     @PostMapping("/users")
@@ -35,6 +40,21 @@ public class AdminController {
     @DeleteMapping("/users/{userId}")
     public void delete(@PathVariable Long userId) {
         userService.delete(userId);
+    }
+
+    @PostMapping("/categories")
+    public CategoryDto addCategory(@Valid @RequestBody NewCategoryDto categoryDto) {
+        return categoryService.add(categoryDto);
+    }
+
+    @DeleteMapping("/categories/{id}")
+    public void deleteCategory(@PathVariable Long id) {
+        categoryService.delete(id);
+    }
+
+    @PatchMapping("/categories/{id}")
+    public CategoryDto updateCategory(@PathVariable Long id, @Valid @RequestBody NewCategoryDto dto) {
+        return categoryService.update(id, dto);
     }
 
 }

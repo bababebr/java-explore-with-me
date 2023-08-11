@@ -1,9 +1,6 @@
 package ru.practicum.ewm.models.category;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import javax.persistence.*;
@@ -14,6 +11,7 @@ import javax.persistence.*;
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
+@AllArgsConstructor(staticName = "create")
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
