@@ -3,6 +3,7 @@ package ru.practicum.ewm.repository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ru.practicum.ewm.models.event.Event;
 
@@ -53,8 +54,8 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findEventsWithRange(String text, List<Integer> categories, boolean paid, LocalDateTime start,
                                     LocalDateTime end, String order);
 
-    @Query("SELECT e FROM Event as e")
-    List<Event> getAllUserEvents();
+    @Query(value = "SELECT e FROM event as e WHERE :allUsers = TRUE THEN ")
+    List<Event> getAllUserEvents(@Param("allUsers") boolean allUsers);
 
     @Query("SELECT MAX(e.id) FROM Event as e")
     Optional<Long> getNextEventId();
