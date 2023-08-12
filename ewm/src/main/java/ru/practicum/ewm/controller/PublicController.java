@@ -1,5 +1,6 @@
 package ru.practicum.ewm.controller;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,11 +27,11 @@ public class PublicController {
     }
 
     @GetMapping
-    public List<EventShortDto> getEvents(@RequestParam(required = false) String text,
+    public List<EventShortDto> getEvents(@RequestParam(required = false) String text,@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss[.SSS]")
                                          @RequestParam(required = false) List<Integer> categories,
                                          @RequestParam(required = false) boolean paid,
-                                         @RequestParam(required = false) LocalDateTime rangeStart,
-                                         @RequestParam(required = false) LocalDateTime rangeEnd,
+                                         @RequestParam(required = false)  LocalDateTime rangeStart,
+                                         @RequestParam(required = false) @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss[.SSS]")LocalDateTime rangeEnd,
                                          @RequestParam(required = false) boolean onlyAvailable,
                                          @RequestParam(required = false) Sort sort,
                                          @RequestParam(defaultValue = "0") @Min(0) int from,

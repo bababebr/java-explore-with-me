@@ -24,11 +24,11 @@ public class EventFullDto {
     @NotNull
     CategoryDto category;
     Integer confirmedRequest = 0;
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss[.SSS]")
     LocalDateTime createdOn = LocalDateTime.now();
     String description = "";
     @NotNull
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss[.SSS]")
     LocalDateTime eventDate;
     Long id = 0L;
     @NotNull

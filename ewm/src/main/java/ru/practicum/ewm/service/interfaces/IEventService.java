@@ -21,4 +21,7 @@ public interface IEventService {
 
     List<EventShortDto> getEvents(String text, List<Integer> categories, boolean paid, LocalDateTime rangeStart,
                                   LocalDateTime rangeEnd, boolean onlyAvailable, Sort sort, int from, int size);
+
+    List<EventFullDto> getUsersEvent(List<Long> usersId, List<String> states, List<Long> categoriesId,
+                                     LocalDateTime rangeStart, LocalDateTime rangeEnd, int from, int size);
 }

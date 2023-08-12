@@ -15,7 +15,6 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     List<Event> findAllByInitiatorId(Long id, Pageable pageable);
 
-
     @Query("SELECT e FROM Event as e  WHERE (e.participantLimit < " +
             "(SELECT COUNT(pr.id) FROM ParticipantRequest as pr WHERE pr.eventId IN " +
             "(SELECT e.id FROM Event as e WHERE UPPER(e.annotation) like UPPER(concat('%',?1,'%')) OR " +
@@ -53,6 +52,9 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             " ORDER BY ?6")
     List<Event> findEventsWithRange(String text, List<Integer> categories, boolean paid, LocalDateTime start,
                                     LocalDateTime end, String order);
+
+    @Query("SELECT e FROM Event as e")
+    List<Event> getAllUserEvents();
 
     @Query("SELECT MAX(e.id) FROM Event as e")
     Optional<Long> getNextEventId();

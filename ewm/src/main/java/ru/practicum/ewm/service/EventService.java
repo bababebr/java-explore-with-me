@@ -115,6 +115,12 @@ public class EventService implements IEventService {
         return events.stream().map(EventMapper::eventToShort).collect(Collectors.toList());
     }
 
+    @Override
+    public List<EventFullDto> getUsersEvent(List<Long> usersId, List<String> states, List<Long> categoriesId,
+                                            LocalDateTime rangeStart, LocalDateTime rangeEnd, int from, int size) {
+        return null;
+    }
+
     private List<EventShortDto> setEventShortDto(List<Event> events) {
         List<EventShortDto> returnList = new ArrayList<>();
         for (Event e : events) {
