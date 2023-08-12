@@ -1,5 +1,6 @@
 package ru.practicum.ewm.models.event;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import ru.practicum.ewm.models.category.CategoryDto;
@@ -19,6 +20,7 @@ public class EventShortDto {
     @NotNull
     CategoryDto categoryDto;
     Integer confirmedRequest = 0;
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss[.S]")
     LocalDateTime eventDate;
     Long id = 0L;
     @NotNull

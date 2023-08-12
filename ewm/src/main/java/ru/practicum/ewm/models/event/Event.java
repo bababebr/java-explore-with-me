@@ -7,6 +7,7 @@ import lombok.Setter;
 import ru.practicum.ewm.enums.EventStatus;
 import ru.practicum.ewm.models.category.Category;
 import ru.practicum.ewm.models.location.Location;
+import ru.practicum.ewm.models.location.LocationDto;
 import ru.practicum.ewm.models.user.User;
 
 import javax.persistence.*;

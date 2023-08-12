@@ -1,6 +1,8 @@
 package ru.practicum.ewm.controller;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.models.event.EventFullDto;
 import ru.practicum.ewm.models.event.EventShortDto;
@@ -12,6 +14,7 @@ import ru.practicum.ewm.service.interfaces.IEventService;
 import ru.practicum.ewm.service.interfaces.IRequestService;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -33,7 +36,8 @@ public class PrivateController {
     @GetMapping("/{userId}/events")
     public List<EventShortDto> getUserEvents(@PathVariable Long userId, @RequestParam(defaultValue = "0") int from,
                                              @RequestParam(defaultValue = "10") int size) {
-        return eventService.getUserOwnEvents(userId, from, size);
+        return new ArrayList<>();
+        //return eventService.getUserOwnEvents(userId, from, size);
     }
 
     @PostMapping("/{userId}/events")
@@ -49,7 +53,8 @@ public class PrivateController {
 
     @PatchMapping("/{userId}/events/{eventId}")
     public EventFullDto updateEvent(@PathVariable Long userId, @PathVariable Long eventId,
-                                    @Valid @RequestBody(required = false) EventFullDto dto) {
+                                    @Valid @RequestBody EventUpdateDto dto) {
+        System.out.println(dto);
         return eventService.updateEvent(userId, eventId, dto);
     }
 

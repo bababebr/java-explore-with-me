@@ -56,5 +56,6 @@ public class CompilationService implements ICompilationService {
         }
         CompilationDto compilationDto = CompilationDto.create(repository.getNextCompilationId(), eventShortDtos,
                 newCompilationDto.getPinned(), newCompilationDto.getTitle() );
+        return null;
     }
 }

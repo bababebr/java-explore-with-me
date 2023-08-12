@@ -63,5 +63,4 @@ public class AdminController {
      * Admin:compilations
      */
 
-    @PostMapping
 }

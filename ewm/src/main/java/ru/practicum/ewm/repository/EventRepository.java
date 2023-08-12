@@ -8,6 +8,7 @@ import ru.practicum.ewm.models.event.Event;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface EventRepository extends JpaRepository<Event, Long> {
@@ -53,6 +54,8 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findEventsWithRange(String text, List<Integer> categories, boolean paid, LocalDateTime start,
                                     LocalDateTime end, String order);
 
+    @Query("SELECT MAX(e.id) FROM Event as e")
+    Optional<Long> getNextEventId();
     /*
     SELECT *
 FROM event AS e

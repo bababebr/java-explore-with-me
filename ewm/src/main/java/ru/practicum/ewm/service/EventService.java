@@ -6,10 +6,11 @@ import org.springframework.stereotype.Service;
 import ru.practicum.ewm.enums.ParticipantRequestStatus;
 import ru.practicum.ewm.enums.Sort;
 import ru.practicum.ewm.mapper.EventMapper;
+import ru.practicum.ewm.models.category.Category;
 import ru.practicum.ewm.models.event.*;
-import ru.practicum.ewm.repository.CategoryRepository;
-import ru.practicum.ewm.repository.EventRepository;
-import ru.practicum.ewm.repository.ParticipantRepository;
+import ru.practicum.ewm.models.location.Location;
+import ru.practicum.ewm.models.user.User;
+import ru.practicum.ewm.repository.*;
 import ru.practicum.ewm.service.interfaces.IEventService;
 
 import java.time.LocalDateTime;
@@ -24,12 +25,18 @@ public class EventService implements IEventService {
     private final EventRepository repository;
     private final ParticipantRepository participantRepository;
     private final CategoryRepository categoryRepository;
+    private final UserRepository userRepository;
+    private final LocationRepository locationRepository;
 
     @Autowired
-    public EventService(EventRepository repository, ParticipantRepository participantRepository, CategoryRepository categoryRepository) {
+    public EventService(EventRepository repository, ParticipantRepository participantRepository,
+                        CategoryRepository categoryRepository, UserRepository userRepository,
+                        LocationRepository locationRepository) {
         this.repository = repository;
         this.participantRepository = participantRepository;
         this.categoryRepository = categoryRepository;
+        this.userRepository = userRepository;
+        this.locationRepository = locationRepository;
     }
 
     @Override
@@ -40,7 +47,24 @@ public class EventService implements IEventService {
 
     @Override
     public EventFullDto addEvent(Long userInd, NewEventDto newEventDto) {
-        return null;
+        User user = userRepository.findById(userInd).orElseThrow(() -> new NoSuchElementException());
+
+        Location rawLocation = Location.create(0L,
+                repository.getNextEventId().orElse(1L),
+                newEventDto.getLocation().getLat(),
+                newEventDto.getLocation().getLon());
+
+        Location location = locationRepository.save(rawLocation);
+
+        Category category;
+        if (newEventDto.getCategoryId() == null) {
+            newEventDto.setCategoryId(1L);
+        }
+        category = categoryRepository.findById(newEventDto.getCategoryId()).orElseThrow(() -> new NoSuchElementException());
+
+        Event savedEvent = repository.save(EventMapper.newEventToEvent(newEventDto, category, user, location));
+
+        return EventMapper.eventToFull(savedEvent);
     }
 
     @Override
@@ -49,7 +73,7 @@ public class EventService implements IEventService {
     }
 
     @Override
-    public EventFullDto updateEvent(Long userId, Long eventId, EventFullDto dto) {
+    public EventFullDto updateEvent(Long userId, Long eventId, EventUpdateDto dto) {
         Event oldEvent = repository.findById(eventId).orElseThrow(() -> new NoSuchElementException());
         if (!(oldEvent.getInitiator().getId() == userId)) {
             throw new IllegalStateException();
@@ -106,16 +130,34 @@ public class EventService implements IEventService {
         return returnList;
     }
 
-    private void update(Event event, EventFullDto dto) {
-        event.setEventDate(dto.getEventDate());
-        event.setAnnotation(dto.getAnnotation());
-        event.setCategory(categoryRepository.findById(dto.getCategoryDto().getId().longValue()).orElseThrow(() -> new NoSuchElementException()));
-        event.setDescription(dto.getDescription());
-        event.setDescription(dto.getDescription());
-        event.setTitle(dto.getTitle());
-        event.setPaid(dto.getPaid());
-        event.setParticipantLimit(dto.getParticipantLimit());
-        event.setRequestModeration(dto.getRequestModeration());
-        event.setState(dto.getState());
+    private void update(Event event, EventUpdateDto dto) {
+        if (dto.getEventDate() != null) {
+            event.setEventDate(dto.getEventDate());
+        }
+        if (dto.getAnnotation() != null) {
+            event.setAnnotation(dto.getAnnotation());
+        }
+        if (dto.getCategoryId() != null) {
+            event.setCategory(categoryRepository.findById(dto.getCategoryId())
+                    .orElseThrow(() -> new NoSuchElementException()));
+        }
+        if (dto.getDescription() != null) {
+            event.setDescription(dto.getDescription());
+        }
+        if (dto.getTitle() != null) {
+            event.setTitle(dto.getTitle());
+        }
+        if (dto.getPaid() != null) {
+            event.setPaid(dto.getPaid());
+        }
+        if (dto.getParticipantLimit() != null) {
+            event.setParticipantLimit(dto.getParticipantLimit());
+        }
+        if (dto.getRequestModeration() != null) {
+            event.setRequestModeration(dto.getRequestModeration());
+        }
+        if (dto.getState() != null) {
+            event.setState(dto.getState());
+        }
     }
 }

@@ -11,10 +11,8 @@ import javax.validation.constraints.Size;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @AllArgsConstructor(staticName = "create")
 @RequiredArgsConstructor(staticName = "create")
+@ToString
 public class LocationDto {
-    Long id;
-    @NotNull
-    Long eventId;
     @NotNull
     @Size(min = -90, max = 90)
     Double lat;

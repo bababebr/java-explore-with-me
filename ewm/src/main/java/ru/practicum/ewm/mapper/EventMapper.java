@@ -1,8 +1,13 @@
 package ru.practicum.ewm.mapper;
 
+import ru.practicum.ewm.enums.EventStatus;
+import ru.practicum.ewm.models.category.Category;
 import ru.practicum.ewm.models.event.Event;
 import ru.practicum.ewm.models.event.EventFullDto;
 import ru.practicum.ewm.models.event.EventShortDto;
+import ru.practicum.ewm.models.event.NewEventDto;
+import ru.practicum.ewm.models.location.Location;
+import ru.practicum.ewm.models.user.User;
 
 import java.time.LocalDateTime;
 
@@ -28,7 +33,7 @@ public class EventMapper {
                 event.getEventDate(),
                 event.getId(),
                 UserMapper.userToShort(event.getInitiator()),
-                event.getLocation(),
+                LocationMapper.locationToDto(event.getLocation()),
                 event.getPaid(),
                 event.getParticipantLimit(),
                 LocalDateTime.now(),
@@ -36,5 +41,21 @@ public class EventMapper {
                 event.getState(),
                 event.getTitle(),
                 0);
+    }
+
+    public static Event newEventToEvent(NewEventDto dto, Category category, User initiator, Location location) {
+        return Event.create(0L,
+                dto.getAnnotation(),
+                category,
+                LocalDateTime.now(),
+                dto.getDescription(),
+                dto.getEventDate(),
+                initiator,
+                location,
+                dto.getPaid(),
+                dto.getParticipantLimit(),
+                dto.getRequestModeration(),
+                EventStatus.PENDING,
+                dto.getTitle());
     }
 }

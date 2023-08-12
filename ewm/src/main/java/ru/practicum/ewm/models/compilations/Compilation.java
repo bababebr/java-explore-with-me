@@ -12,7 +12,6 @@ import javax.persistence.*;
 @Table(name = "compilation")
 @Getter
 @Setter
-@NoArgsConstructor
 @RequiredArgsConstructor(staticName = "create")
 public class Compilation {
     @Id
