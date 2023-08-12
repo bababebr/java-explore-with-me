@@ -18,6 +18,8 @@ public class Compilation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
+    @Column(name = "compilation_id")
+    Long compilationId;
     @ManyToOne
     @JoinColumn(name = "event")
     Event event;

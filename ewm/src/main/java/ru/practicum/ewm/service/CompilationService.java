@@ -1,10 +1,12 @@
 package ru.practicum.ewm.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import ru.practicum.ewm.mapper.EventMapper;
 import ru.practicum.ewm.models.compilations.Compilation;
 import ru.practicum.ewm.models.compilations.CompilationDto;
 import ru.practicum.ewm.models.compilations.NewCompilationDto;
 import ru.practicum.ewm.models.event.Event;
+import ru.practicum.ewm.models.event.EventShortDto;
 import ru.practicum.ewm.repository.CompilationRepository;
 import ru.practicum.ewm.repository.EventRepository;
 import ru.practicum.ewm.service.interfaces.ICompilationService;
@@ -12,6 +14,7 @@ import ru.practicum.ewm.service.interfaces.ICompilationService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 public class CompilationService implements ICompilationService {
     private final CompilationRepository repository;
@@ -41,6 +44,7 @@ public class CompilationService implements ICompilationService {
 
     private CompilationDto saveCompilations(NewCompilationDto newCompilationDto) {
         List<Compilation> compilationList = new ArrayList<>();
+        List<EventShortDto> eventShortDtos = new ArrayList<>();
         for (Long eventId : newCompilationDto.getEvent_ids()) {
             Event event = eventRepository.findById(eventId).orElseThrow(() -> new NoSuchElementException());
             Compilation compilation = Compilation.create();
@@ -48,7 +52,9 @@ public class CompilationService implements ICompilationService {
             compilation.setPinned(newCompilationDto.getPinned());
             compilation.setTitle(newCompilationDto.getTitle());
             compilationList.add(repository.save(compilation));
+            eventShortDtos.add(EventMapper.eventToShort(event));
         }
-        CompilationDto compilationDto = CompilationDto.create()
+        CompilationDto compilationDto = CompilationDto.create(repository.getNextCompilationId(), eventShortDtos,
+                newCompilationDto.getPinned(), newCompilationDto.getTitle() );
     }
 }
