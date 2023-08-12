@@ -42,6 +42,9 @@ public class AdminController {
         userService.delete(userId);
     }
 
+    /**
+     * Admin:categories
+     */
     @PostMapping("/categories")
     public CategoryDto addCategory(@Valid @RequestBody NewCategoryDto categoryDto) {
         return categoryService.add(categoryDto);
@@ -56,5 +59,9 @@ public class AdminController {
     public CategoryDto updateCategory(@PathVariable Long id, @Valid @RequestBody NewCategoryDto dto) {
         return categoryService.update(id, dto);
     }
+    /**
+     * Admin:compilations
+     */
 
+    @PostMapping
 }

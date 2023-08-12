@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import ru.practicum.ewm.models.event.Event;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -19,8 +20,38 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "(SELECT e.id FROM Event as e WHERE UPPER(e.annotation) like UPPER(concat('%',?1,'%')) OR " +
             "UPPER(e.description) like UPPER(concat('%',?1,'%'))))) " +
             "AND e.category in ?2" +
-            "AND e.paid = ?3")
-    List<Event> findEvents v(String text, List<Integer> categories, boolean paid);
+            "AND e.paid = ?3 " +
+            "AND e.eventDate BETWEEN ?4 AND ?5" +
+            " ORDER BY ?6")
+    List<Event> findEventsIsAvailableWithRange(String text, List<Integer> categories, boolean paid, LocalDateTime start,
+                                               LocalDateTime end, String order);
+
+    @Query("SELECT e FROM Event as e  WHERE (e.participantLimit < " +
+            "(SELECT COUNT(pr.id) FROM ParticipantRequest as pr WHERE pr.eventId IN " +
+            "(SELECT e.id FROM Event as e WHERE UPPER(e.annotation) like UPPER(concat('%',?1,'%')) OR " +
+            "UPPER(e.description) like UPPER(concat('%',?1,'%'))))) " +
+            "AND e.category in ?2" +
+            "AND e.paid = ?3 " +
+            "AND e.eventDate > CURRENT_TIME" +
+            " ORDER BY ?4")
+    List<Event> findEventsIsAvailableWithoutRange(String text, List<Integer> categories, boolean paid, String order);
+
+    @Query("SELECT e FROM Event as e WHERE UPPER(e.annotation) like UPPER(concat('%',?1,'%')) OR " +
+            "UPPER(e.description) like UPPER(concat('%',?1,'%')) " +
+            "AND e.category in ?2" +
+            "AND e.paid = ?3 " +
+            "AND e.eventDate > CURRENT_TIME" +
+            " ORDER BY ?4")
+    List<Event> findEventsWithoutRange(String text, List<Integer> categories, boolean paid, String order);
+
+    @Query("SELECT e FROM Event as e WHERE UPPER(e.annotation) like UPPER(concat('%',?1,'%')) OR " +
+            "UPPER(e.description) like UPPER(concat('%',?1,'%')) " +
+            "AND e.category in ?2" +
+            "AND e.paid = ?3 " +
+            "AND e.eventDate BETWEEN ?4 AND ?5" +
+            " ORDER BY ?6")
+    List<Event> findEventsWithRange(String text, List<Integer> categories, boolean paid, LocalDateTime start,
+                                    LocalDateTime end, String order);
 
     /*
     SELECT *
