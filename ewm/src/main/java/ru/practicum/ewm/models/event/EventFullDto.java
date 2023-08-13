@@ -5,7 +5,6 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import ru.practicum.ewm.enums.EventStatus;
 import ru.practicum.ewm.models.category.CategoryDto;
-import ru.practicum.ewm.models.location.Location;
 import ru.practicum.ewm.models.location.LocationDto;
 import ru.practicum.ewm.models.user.UserDtoShort;
 
@@ -23,7 +22,7 @@ public class EventFullDto {
     String annotation;
     @NotNull
     CategoryDto category;
-    Integer confirmedRequest = 0;
+    Integer confirmedRequests = 0;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss[.SSS]")
     LocalDateTime createdOn = LocalDateTime.now();
     String description = "";

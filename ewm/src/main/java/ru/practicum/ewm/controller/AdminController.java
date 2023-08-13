@@ -8,6 +8,7 @@ import ru.practicum.ewm.enums.EventStatus;
 import ru.practicum.ewm.models.category.CategoryDto;
 import ru.practicum.ewm.models.category.NewCategoryDto;
 import ru.practicum.ewm.models.event.EventFullDto;
+import ru.practicum.ewm.models.event.EventUpdateDto;
 import ru.practicum.ewm.models.user.UserDto;
 import ru.practicum.ewm.service.interfaces.ICategoryService;
 import ru.practicum.ewm.service.interfaces.IEventService;
@@ -72,14 +73,18 @@ public class AdminController {
      * Admin:Events
      */
     @GetMapping("/events")
-    public List<EventFullDto> getUsersEvents(@RequestParam(required = false) List<Long> usersId,
+    public List<EventFullDto> getUsersEvents(@RequestParam(required = false) List<Long> users,
                                              @RequestParam(required = false) List<EventStatus> states,
-                                             @RequestParam(required = false) List<Integer> categoriesId,
+                                             @RequestParam(required = false) List<Long> categories,
                                              @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
                                              @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
                                              @RequestParam(defaultValue = "0") @Min(0) int from,
                                              @RequestParam(defaultValue = "10") @Min(1) int size) {
+        return eventService.getUsersEvent(users, states, categories, rangeStart, rangeEnd, from, size);
+    }
 
-        return eventService.getUsersEvent(usersId, states, categoriesId, rangeStart, rangeEnd, from, size);
+    @PatchMapping("/events/{eventId}")
+    public EventFullDto updateEvent(@PathVariable Long eventId, @RequestBody EventUpdateDto dto) {
+        return eventService.updateEventByAdmin(eventId, dto);
     }
 }

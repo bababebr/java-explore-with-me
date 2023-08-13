@@ -6,4 +6,5 @@ import ru.practicum.ewm.models.request.eventRequest.Request;
 
 @Repository
 public interface RequestRepository extends JpaRepository<Request, Long> {
+
 }

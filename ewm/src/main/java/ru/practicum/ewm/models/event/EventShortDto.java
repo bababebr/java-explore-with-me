@@ -19,7 +19,7 @@ public class EventShortDto {
     String annotation;
     @NotNull
     CategoryDto categoryDto;
-    Integer confirmedRequest = 0;
+    Integer confirmedRequests = 0;
     @JsonFormat(shape=JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss[.S]")
     LocalDateTime eventDate;
     Long id = 0L;

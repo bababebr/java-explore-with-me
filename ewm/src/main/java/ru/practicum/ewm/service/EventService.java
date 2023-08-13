@@ -1,6 +1,5 @@
 package ru.practicum.ewm.service;
 
-import net.bytebuddy.asm.Advice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -75,17 +74,6 @@ public class EventService implements IEventService {
     }
 
     @Override
-    public EventFullDto updateEvent(Long userId, Long eventId, EventUpdateDto dto) {
-        Event oldEvent = repository.findById(eventId).orElseThrow(() -> new NoSuchElementException());
-        if (!(oldEvent.getInitiator().getId() == userId)) {
-            throw new IllegalStateException();
-        }
-        update(oldEvent, dto);
-
-        return EventMapper.eventToFull(repository.save(oldEvent));
-    }
-
-    @Override
     public List<EventShortDto> getEvents(String text, List<Integer> categories, boolean paid, LocalDateTime rangeStart,
                                          LocalDateTime rangeEnd, boolean onlyAvailable, Sort sort, int from, int size) {
 
@@ -118,13 +106,30 @@ public class EventService implements IEventService {
     }
 
     @Override
-    public List<EventFullDto> getUsersEvent(List<Long> usersId, List<EventStatus> states, List<Integer> categoriesId,
+    public List<EventFullDto> getUsersEvent(List<Long> usersId, List<EventStatus> states, List<Long> categoriesId,
                                             LocalDateTime rangeStart, LocalDateTime rangeEnd, int from, int size) {
-/*        List<Event> events = repository.getUserEvents(usersId, states, categoriesId, rangeStart, rangeEnd,
-                PageRequest.of(from, size));*/
-        System.out.println(usersId.get(0));
-            List<Event> events = repository.getUserEventsTest(usersId.get(0));
+        List<Event> events = repository.getUserEvents(usersId, states, categoriesId, rangeStart, rangeEnd,
+                PageRequest.of(from, size));
         return events.stream().map(EventMapper::eventToFull).collect(Collectors.toList());
+    }
+
+    @Override
+    public EventFullDto updateEvent(Long userId, Long eventId, EventUpdateDto dto) {
+        Event oldEvent = repository.findById(eventId).orElseThrow(() -> new NoSuchElementException());
+        if (!(oldEvent.getInitiator().getId() == userId)) {
+            throw new IllegalStateException();
+        }
+        update(oldEvent, dto);
+
+        return EventMapper.eventToFull(repository.save(oldEvent));
+    }
+
+    @Override
+    public EventFullDto updateEventByAdmin(Long eventId, EventUpdateDto dto) {
+        Event event = repository.findById(eventId).orElseThrow(() -> new NoSuchElementException());
+        validateEventAdminUpdate(event, dto);
+        update(event, dto);
+        return EventMapper.eventToFull(event);
     }
 
     private List<EventShortDto> setEventShortDto(List<Event> events) {
@@ -136,7 +141,7 @@ public class EventService implements IEventService {
              */
             int viewCount = 0;
             EventShortDto shortDto = EventMapper.eventToShort(e);
-            shortDto.setConfirmedRequest(participantCount);
+            shortDto.setConfirmedRequests(participantCount);
             returnList.add(shortDto);
         }
         return returnList;
@@ -172,4 +177,18 @@ public class EventService implements IEventService {
             event.setState(dto.getState());
         }
     }
+
+    private void validateEventAdminUpdate(Event event, EventUpdateDto dto) {
+        /**
+         * TODO дата начала изменяемого события должна быть не ранее чем за час от даты публикации. (Ожидается код ошибки 409)
+         */
+        if(event.getState().equals(EventStatus.PUBLISHED) && dto.getState().equals(EventStatus.CANCELED)) {
+            throw new IllegalStateException();
+        }
+        if(!event.getState().equals(EventStatus.PENDING) && dto.getState().equals(EventStatus.PUBLISHED)) {
+            throw new IllegalStateException();
+        }
+
+    }
+
 }

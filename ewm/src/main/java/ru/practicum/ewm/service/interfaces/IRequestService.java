@@ -2,6 +2,7 @@ package ru.practicum.ewm.service.interfaces;
 
 import ru.practicum.ewm.models.request.eventRequest.RequestDto;
 import ru.practicum.ewm.models.request.eventRequest.RequestUpdateDto;
+import ru.practicum.ewm.models.request.participantRequest.ParticipantRequestDto;
 
 import java.util.List;
 
@@ -11,7 +12,7 @@ public interface IRequestService {
 
     List<RequestDto> getUserRequest(Long userId);
 
-    RequestDto addUserRequest(Long userId, Long eventId);
+    ParticipantRequestDto addUserRequest(Long userId, Long eventId);
 
     RequestDto cancelRequest(Long userId, Long requestId);
 }

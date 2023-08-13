@@ -54,14 +54,14 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findEventsWithRange(String text, List<Integer> categories, boolean paid, LocalDateTime start,
                                     LocalDateTime end, String order);
 
-    @Query("SELECT e FROM Event as e WHERE (e.initiator.id IN ?1 or ?1 = (0) ) AND (e.state = ?2 or ?2 is null) " +
-            "AND (e.category.id IN ?3 or ?3 = (0)) " +
-            "AND (e.eventDate between ?4 AND ?5 or length(?4) is null AND e.eventDate > current_timestamp)")
-    List<Event> getUserEvents(List<Long> usersId, List<EventStatus> states, List<Integer> categories,
+    @Query("SELECT e FROM Event as e WHERE (e.initiator.id IN ?1 or 0 = ?1 ) AND (e.state in ?2 or ?2 is null) " +
+            "AND (e.category.id IN ?3 or 0 = ?3) " +
+            "AND (e.eventDate between ?4 AND ?5)")
+    List<Event> getUserEvents(List<Long> usersId, List<EventStatus> states, List<Long> categories,
                               LocalDateTime rangeStart, LocalDateTime rangeEnd, Pageable pageable);
 
-    @Query("SELECT e FROM Event as e WHERE (e.initiator.id = ?1 or ?1 = 0)")
-    List<Event> getUserEventsTest(Long userId);
+    @Query("SELECT e FROM Event as e WHERE (e.initiator.id IN ?1 or 0 = ?1) AND (e.state in ?2 or ?2 is null) AND (e.category.id IN ?3 or 0 = ?3) ")
+    List<Event> getTest(List<Long> usersId, List<EventStatus> state, List<Long> categories);
 
     @Query("SELECT MAX(e.id) FROM Event as e")
     Optional<Long> getNextEventId();

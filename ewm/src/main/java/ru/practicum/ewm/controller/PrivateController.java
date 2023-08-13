@@ -10,6 +10,7 @@ import ru.practicum.ewm.models.event.EventUpdateDto;
 import ru.practicum.ewm.models.event.NewEventDto;
 import ru.practicum.ewm.models.request.eventRequest.RequestDto;
 import ru.practicum.ewm.models.request.eventRequest.RequestUpdateDto;
+import ru.practicum.ewm.models.request.participantRequest.ParticipantRequestDto;
 import ru.practicum.ewm.service.interfaces.IEventService;
 import ru.practicum.ewm.service.interfaces.IRequestService;
 
@@ -78,7 +79,7 @@ public class PrivateController {
     }
 
     @PostMapping("/{userId}/requests")
-    public RequestDto addUserRequest(@PathVariable Long userId, @RequestParam Long eventId) {
+    public ParticipantRequestDto addUserRequest(@PathVariable Long userId, @RequestParam Long eventId) {
         return requestService.addUserRequest(userId, eventId);
     }
 

@@ -23,6 +23,8 @@ public interface IEventService {
     List<EventShortDto> getEvents(String text, List<Integer> categories, boolean paid, LocalDateTime rangeStart,
                                   LocalDateTime rangeEnd, boolean onlyAvailable, Sort sort, int from, int size);
 
-    List<EventFullDto> getUsersEvent(List<Long> usersId, List<EventStatus> states, List<Integer> categoriesId,
+    List<EventFullDto> getUsersEvent(List<Long> usersId, List<EventStatus> states, List<Long> categoriesId,
                                      LocalDateTime rangeStart, LocalDateTime rangeEnd, int from, int size);
+
+    EventFullDto updateEventByAdmin(Long eventId, EventUpdateDto dto);
 }
