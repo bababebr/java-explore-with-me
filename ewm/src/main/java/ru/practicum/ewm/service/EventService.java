@@ -1,8 +1,10 @@
 package ru.practicum.ewm.service;
 
+import net.bytebuddy.asm.Advice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import ru.practicum.ewm.enums.EventStatus;
 import ru.practicum.ewm.enums.ParticipantRequestStatus;
 import ru.practicum.ewm.enums.Sort;
 import ru.practicum.ewm.mapper.EventMapper;
@@ -116,9 +118,13 @@ public class EventService implements IEventService {
     }
 
     @Override
-    public List<EventFullDto> getUsersEvent(List<Long> usersId, List<String> states, List<Long> categoriesId,
+    public List<EventFullDto> getUsersEvent(List<Long> usersId, List<EventStatus> states, List<Integer> categoriesId,
                                             LocalDateTime rangeStart, LocalDateTime rangeEnd, int from, int size) {
-        return null;
+/*        List<Event> events = repository.getUserEvents(usersId, states, categoriesId, rangeStart, rangeEnd,
+                PageRequest.of(from, size));*/
+        System.out.println(usersId.get(0));
+            List<Event> events = repository.getUserEventsTest(usersId.get(0));
+        return events.stream().map(EventMapper::eventToFull).collect(Collectors.toList());
     }
 
     private List<EventShortDto> setEventShortDto(List<Event> events) {

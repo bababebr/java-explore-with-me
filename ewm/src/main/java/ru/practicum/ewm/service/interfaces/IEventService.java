@@ -1,5 +1,6 @@
 package ru.practicum.ewm.service.interfaces;
 
+import ru.practicum.ewm.enums.EventStatus;
 import ru.practicum.ewm.enums.Sort;
 import ru.practicum.ewm.models.event.EventFullDto;
 import ru.practicum.ewm.models.event.EventShortDto;
@@ -22,6 +23,6 @@ public interface IEventService {
     List<EventShortDto> getEvents(String text, List<Integer> categories, boolean paid, LocalDateTime rangeStart,
                                   LocalDateTime rangeEnd, boolean onlyAvailable, Sort sort, int from, int size);
 
-    List<EventFullDto> getUsersEvent(List<Long> usersId, List<String> states, List<Long> categoriesId,
+    List<EventFullDto> getUsersEvent(List<Long> usersId, List<EventStatus> states, List<Integer> categoriesId,
                                      LocalDateTime rangeStart, LocalDateTime rangeEnd, int from, int size);
 }

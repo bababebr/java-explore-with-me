@@ -3,8 +3,8 @@ package ru.practicum.ewm.repository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import ru.practicum.ewm.enums.EventStatus;
 import ru.practicum.ewm.models.event.Event;
 
 import java.time.LocalDateTime;
@@ -54,16 +54,16 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findEventsWithRange(String text, List<Integer> categories, boolean paid, LocalDateTime start,
                                     LocalDateTime end, String order);
 
-    @Query(value = "SELECT e FROM event as e WHERE :allUsers = TRUE THEN ")
-    List<Event> getAllUserEvents(@Param("allUsers") boolean allUsers);
+    @Query("SELECT e FROM Event as e WHERE (e.initiator.id IN ?1 or ?1 = (0) ) AND (e.state = ?2 or ?2 is null) " +
+            "AND (e.category.id IN ?3 or ?3 = (0)) " +
+            "AND (e.eventDate between ?4 AND ?5 or length(?4) is null AND e.eventDate > current_timestamp)")
+    List<Event> getUserEvents(List<Long> usersId, List<EventStatus> states, List<Integer> categories,
+                              LocalDateTime rangeStart, LocalDateTime rangeEnd, Pageable pageable);
+
+    @Query("SELECT e FROM Event as e WHERE (e.initiator.id = ?1 or ?1 = 0)")
+    List<Event> getUserEventsTest(Long userId);
 
     @Query("SELECT MAX(e.id) FROM Event as e")
     Optional<Long> getNextEventId();
-    /*
-    SELECT *
-FROM event AS e
-WHERE (SELECT COUNT(pr.id)
-       FROM participant_request as pr
-       WHERE pr.event_id IN (SELECT e.id WHERE e.annotation like 'q')) < e.participant_limit
-     */
+
 }

@@ -2,7 +2,9 @@ package ru.practicum.ewm.controller;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.ewm.enums.EventStatus;
 import ru.practicum.ewm.models.category.CategoryDto;
 import ru.practicum.ewm.models.category.NewCategoryDto;
 import ru.practicum.ewm.models.event.EventFullDto;
@@ -70,11 +72,11 @@ public class AdminController {
      * Admin:Events
      */
     @GetMapping("/events")
-    public List<EventFullDto> getUsersEvents(@RequestParam(defaultValue = "0") List<Long> usersId,
-                                             @RequestParam(defaultValue = "") List<String> states,
-                                             @RequestParam(defaultValue = "0") List<Long> categoriesId,
-                                             @RequestParam @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss[.SSS]") LocalDateTime rangeStart,
-                                             @RequestParam @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss[.SSS]") LocalDateTime rangeEnd,
+    public List<EventFullDto> getUsersEvents(@RequestParam(required = false) List<Long> usersId,
+                                             @RequestParam(required = false) List<EventStatus> states,
+                                             @RequestParam(required = false) List<Integer> categoriesId,
+                                             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
+                                             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
                                              @RequestParam(defaultValue = "0") @Min(0) int from,
                                              @RequestParam(defaultValue = "10") @Min(1) int size) {
 
