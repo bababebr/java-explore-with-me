@@ -3,6 +3,7 @@ package ru.practicum.ewm.models.event;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.validator.constraints.Length;
 import ru.practicum.ewm.models.location.Location;
 import ru.practicum.ewm.models.location.LocationDto;
 
@@ -18,14 +19,12 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @ToString
 public class NewEventDto {
-    @NotNull
-    @NotEmpty
     @NotBlank
+    @Length(min = 20, max = 2000)
     String annotation;
     Long categoryId;
-    @NotNull
-    @NotEmpty
     @NotBlank
+    @Length(min = 20, max = 7000)
     String description;
     @NotNull
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss[.SSS]")
@@ -35,6 +34,7 @@ public class NewEventDto {
     Boolean paid = false;
     Integer participantLimit = 0;
     Boolean requestModeration = true;
-    @NotNull
+    @NotEmpty
+    @Length(min = 3, max = 120)
     String title;
 }

@@ -20,7 +20,7 @@ public interface IEventService {
 
     EventFullDto updateEvent(Long userId, Long eventId, EventUpdateDto dto);
 
-    List<EventShortDto> getEvents(String text, List<Integer> categories, boolean paid, LocalDateTime rangeStart,
+    List<EventShortDto> getEvents(String text, List<Long> categories, boolean paid, LocalDateTime rangeStart,
                                   LocalDateTime rangeEnd, boolean onlyAvailable, Sort sort, int from, int size);
 
     List<EventFullDto> getUsersEvent(List<Long> usersId, List<EventStatus> states, List<Long> categoriesId,

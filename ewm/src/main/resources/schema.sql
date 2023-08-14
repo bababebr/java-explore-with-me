@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS PARTICIPANT_REQUEST
     CREATED  TIMESTAMP                                           NOT NULL,
     USER_ID  BIGINT                                              NOT NULL,
     EVENT_ID BIGINT                                              NOT NULL,
-    STATUS   INT                                                 NOT NULL
+    STATUS   VARCHAR                                             NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS Location

@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.persistence.EntityNotFoundException;
 import javax.validation.ValidationException;
+import java.time.LocalDateTime;
+import java.util.NoSuchElementException;
 
 @RestControllerAdvice
 public class ExceptionsHandler {
@@ -14,12 +16,14 @@ public class ExceptionsHandler {
     @ExceptionHandler({ValidationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse validationException(final RuntimeException e) {
-        return new ErrorResponse("BadRequest Exception: ", e.getMessage());
+        return new ErrorResponse(e.getStackTrace(), e.getMessage(), e.getLocalizedMessage(),
+                HttpStatus.BAD_REQUEST.toString(), LocalDateTime.now());
     }
 
-    @ExceptionHandler({EntityNotFoundException.class})
+    @ExceptionHandler({EntityNotFoundException.class, NoSuchElementException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse itemNotFoundException(final RuntimeException e) {
-        return new ErrorResponse("Object Exception: ", e.getMessage());
+        return new ErrorResponse(e.getStackTrace(), e.getMessage(), e.getLocalizedMessage(),
+                HttpStatus.NOT_FOUND.toString(), LocalDateTime.now());
     }
 }

@@ -37,8 +37,7 @@ public class PrivateController {
     @GetMapping("/{userId}/events")
     public List<EventShortDto> getUserEvents(@PathVariable Long userId, @RequestParam(defaultValue = "0") int from,
                                              @RequestParam(defaultValue = "10") int size) {
-        return new ArrayList<>();
-        //return eventService.getUserOwnEvents(userId, from, size);
+        return eventService.getUserOwnEvents(userId, from, size);
     }
 
     @PostMapping("/{userId}/events")
@@ -69,12 +68,11 @@ public class PrivateController {
                                     @Valid @RequestBody RequestUpdateDto requestUpdateDto) {
         return requestService.updateRequest(userId, eventId, requestUpdateDto);
     }
-
     /**
      * Private: Event requests
      */
     @GetMapping("/{userId}/requests")
-    public List<RequestDto> getUserRequests(@PathVariable Long userId) {
+    public List<ParticipantRequestDto> getUserRequests(@PathVariable Long userId) {
         return requestService.getUserRequest(userId);
     }
 
@@ -84,7 +82,7 @@ public class PrivateController {
     }
 
     @PatchMapping("/{userId}/requests/{requestId}/cancel")
-    public RequestDto cancelRequest(@PathVariable Long userId, @PathVariable Long requestId) {
+    public ParticipantRequestDto cancelRequest(@PathVariable Long userId, @PathVariable Long requestId) {
         return requestService.cancelRequest(userId, requestId);
     }
 }

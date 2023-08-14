@@ -14,7 +14,10 @@ import ru.practicum.ewm.models.user.User;
 import ru.practicum.ewm.repository.*;
 import ru.practicum.ewm.service.interfaces.IEventService;
 
+import javax.validation.ValidationException;
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -49,20 +52,23 @@ public class EventService implements IEventService {
     @Override
     public EventFullDto addEvent(Long userInd, NewEventDto newEventDto) {
         User user = userRepository.findById(userInd).orElseThrow(() -> new NoSuchElementException());
+        Duration duration = Duration.between(LocalDateTime.now(), newEventDto.getEventDate());
+        if(duration.toHours() < 2) {
+            throw new ValidationException("Event date is invalid.");
+        }
 
         Location rawLocation = Location.create(0L,
                 repository.getNextEventId().orElse(1L),
                 newEventDto.getLocation().getLat(),
                 newEventDto.getLocation().getLon());
-
         Location location = locationRepository.save(rawLocation);
+
 
         Category category;
         if (newEventDto.getCategoryId() == null) {
             newEventDto.setCategoryId(1L);
         }
         category = categoryRepository.findById(newEventDto.getCategoryId()).orElseThrow(() -> new NoSuchElementException());
-
         Event savedEvent = repository.save(EventMapper.newEventToEvent(newEventDto, category, user, location));
 
         return EventMapper.eventToFull(savedEvent);
@@ -74,9 +80,8 @@ public class EventService implements IEventService {
     }
 
     @Override
-    public List<EventShortDto> getEvents(String text, List<Integer> categories, boolean paid, LocalDateTime rangeStart,
+    public List<EventShortDto> getEvents(String text, List<Long> categories, boolean paid, LocalDateTime rangeStart,
                                          LocalDateTime rangeEnd, boolean onlyAvailable, Sort sort, int from, int size) {
-
         if (text == null) {
             return new ArrayList<>();
         }
@@ -87,21 +92,10 @@ public class EventService implements IEventService {
         } else {
             sortType = "e.event_date";
         }
-        List<Event> events;
-        if (onlyAvailable) {
-            if (rangeStart == null) {
-                events = repository.findEventsIsAvailableWithoutRange(text, categories, paid, sortType);
-            } else {
-                events = repository.findEventsIsAvailableWithRange(text, categories, paid, rangeStart,
-                        rangeEnd, sortType);
-            }
-        } else {
-            if (rangeStart == null) {
-                events = repository.findEventsWithoutRange(text, categories, paid, sortType);
-            } else {
-                events = repository.findEventsWithRange(text, categories, paid, rangeStart, rangeEnd, sortType);
-            }
-        }
+
+        List<Event> events = repository.getEvents(text, categories, paid, onlyAvailable, rangeStart,
+                rangeEnd, sortType, PageRequest.of(from, size));
+
         return events.stream().map(EventMapper::eventToShort).collect(Collectors.toList());
     }
 
@@ -124,14 +118,6 @@ public class EventService implements IEventService {
         return EventMapper.eventToFull(repository.save(oldEvent));
     }
 
-    @Override
-    public EventFullDto updateEventByAdmin(Long eventId, EventUpdateDto dto) {
-        Event event = repository.findById(eventId).orElseThrow(() -> new NoSuchElementException());
-        validateEventAdminUpdate(event, dto);
-        update(event, dto);
-        return EventMapper.eventToFull(event);
-    }
-
     private List<EventShortDto> setEventShortDto(List<Event> events) {
         List<EventShortDto> returnList = new ArrayList<>();
         for (Event e : events) {
@@ -145,6 +131,14 @@ public class EventService implements IEventService {
             returnList.add(shortDto);
         }
         return returnList;
+    }
+
+    @Override
+    public EventFullDto updateEventByAdmin(Long eventId, EventUpdateDto dto) {
+        Event event = repository.findById(eventId).orElseThrow(() -> new NoSuchElementException());
+        validateEventAdminUpdate(event, dto);
+        update(event, dto);
+        return EventMapper.eventToFull(event);
     }
 
     private void update(Event event, EventUpdateDto dto) {
@@ -182,10 +176,10 @@ public class EventService implements IEventService {
         /**
          * TODO дата начала изменяемого события должна быть не ранее чем за час от даты публикации. (Ожидается код ошибки 409)
          */
-        if(event.getState().equals(EventStatus.PUBLISHED) && dto.getState().equals(EventStatus.CANCELED)) {
+        if (event.getState().equals(EventStatus.PUBLISHED) && dto.getState().equals(EventStatus.CANCELED)) {
             throw new IllegalStateException();
         }
-        if(!event.getState().equals(EventStatus.PENDING) && dto.getState().equals(EventStatus.PUBLISHED)) {
+        if (!event.getState().equals(EventStatus.PENDING) && dto.getState().equals(EventStatus.PUBLISHED)) {
             throw new IllegalStateException();
         }
 

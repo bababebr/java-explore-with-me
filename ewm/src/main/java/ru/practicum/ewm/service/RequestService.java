@@ -2,7 +2,6 @@ package ru.practicum.ewm.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.practicum.ewm.enums.EventStatus;
 import ru.practicum.ewm.enums.ParticipantRequestStatus;
 import ru.practicum.ewm.mapper.ParticipantRequestMapper;
 import ru.practicum.ewm.models.event.Event;
@@ -19,6 +18,7 @@ import ru.practicum.ewm.service.interfaces.IRequestService;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 public class RequestService implements IRequestService {
@@ -47,8 +47,9 @@ public class RequestService implements IRequestService {
     }
 
     @Override
-    public List<RequestDto> getUserRequest(Long userId) {
-        return null;
+    public List<ParticipantRequestDto> getUserRequest(Long userId) {
+        List<ParticipantRequest> request = participantRepository.getUserRequests(userId);
+        return request.stream().map(ParticipantRequestMapper::requestToDto).collect(Collectors.toList());
     }
 
     @Override
@@ -57,8 +58,12 @@ public class RequestService implements IRequestService {
     }
 
     @Override
-    public RequestDto cancelRequest(Long userId, Long requestId) {
-        return null;
+    public ParticipantRequestDto cancelRequest(Long userId, Long requestId) {
+        ParticipantRequest participantRequest = participantRepository.findAllByUserIdAndId(userId, requestId)
+                .orElseThrow(() -> new NoSuchElementException("User request not found."));
+        participantRequest.setStatus(ParticipantRequestStatus.REJECTED);
+
+        return ParticipantRequestMapper.requestToDto(participantRepository.save(participantRequest));
     }
 
     private ParticipantRequestDto validateUserRequest(Long userId, Long eventId) {
@@ -78,9 +83,10 @@ public class RequestService implements IRequestService {
         /**
          * Is participant limit reached
          */
+
         if (participantRepository.countAllByEventIdAndStatusIn(eventId,
                 List.of(ParticipantRequestStatus.CONFIRMED,
-                        ParticipantRequestStatus.PENDING)) >= event.getParticipantLimit()) {
+                        ParticipantRequestStatus.PENDING)) > event.getParticipantLimit() && event.getParticipantLimit() != 0) {
             throw new IllegalStateException("Participant limit has been reached.");
         }
 
@@ -93,9 +99,7 @@ public class RequestService implements IRequestService {
         /**
          * Is event published
          */
-        if (!event.getState().equals(EventStatus.PUBLISHED)) {
-            throw new IllegalStateException("Event not in PUBLISHED state.");
-        }
+
         ParticipantRequestDto dto = ParticipantRequestDto
                 .create(LocalDateTime.now(), 0L, eventId, userId, ParticipantRequestStatus.CONFIRMED);
         ParticipantRequest request;
