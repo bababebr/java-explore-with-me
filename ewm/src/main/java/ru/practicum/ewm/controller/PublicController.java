@@ -2,12 +2,12 @@ package ru.practicum.ewm.controller;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.enums.Sort;
+import ru.practicum.ewm.models.compilations.CompilationDto;
+import ru.practicum.ewm.models.event.EventFullDto;
 import ru.practicum.ewm.models.event.EventShortDto;
+import ru.practicum.ewm.service.CompilationService;
 import ru.practicum.ewm.service.EventService;
 
 import javax.validation.constraints.Min;
@@ -20,9 +20,12 @@ public class PublicController {
 
     private final EventService eventService;
 
+    private final CompilationService compilationService;
+
     @Autowired
-    public PublicController(EventService eventService) {
+    public PublicController(EventService eventService, CompilationService compilationService) {
         this.eventService = eventService;
+        this.compilationService = compilationService;
     }
 
     @GetMapping("/events")
@@ -36,6 +39,21 @@ public class PublicController {
                                          @RequestParam(defaultValue = "0") @Min(0) int from,
                                          @RequestParam(defaultValue = "10") @Min(1) int size) {
         return eventService.getEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
+    }
+
+    @GetMapping("/events/{id}")
+    public EventFullDto getEvent(@PathVariable Long id) {
+        return eventService.getEvent(id);
+    }
+
+    @GetMapping("/compilations")
+    public List<CompilationDto> getCompilations() {
+        return compilationService.getCompilations();
+    }
+
+    @GetMapping("/compilations/{id}")
+    public CompilationDto getCompilation(@PathVariable Long id) {
+        return compilationService.getCompilation(id);
     }
 
 }

@@ -17,7 +17,6 @@ import ru.practicum.ewm.service.interfaces.IEventService;
 import javax.validation.ValidationException;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -50,10 +49,17 @@ public class EventService implements IEventService {
     }
 
     @Override
+    public EventFullDto getEvent(Long id) {
+        Event event = repository.getEvent(id, EventStatus.PUBLISHED)
+                .orElseThrow(() -> new NoSuchElementException("Event not found"));
+        return EventMapper.eventToFull(event);
+    }
+
+    @Override
     public EventFullDto addEvent(Long userInd, NewEventDto newEventDto) {
         User user = userRepository.findById(userInd).orElseThrow(() -> new NoSuchElementException());
         Duration duration = Duration.between(LocalDateTime.now(), newEventDto.getEventDate());
-        if(duration.toHours() < 2) {
+        if (duration.toHours() < 2) {
             throw new ValidationException("Event date is invalid.");
         }
 
@@ -63,12 +69,12 @@ public class EventService implements IEventService {
                 newEventDto.getLocation().getLon());
         Location location = locationRepository.save(rawLocation);
 
-
         Category category;
-        if (newEventDto.getCategoryId() == null) {
-            newEventDto.setCategoryId(1L);
+        if (newEventDto.getCategory() == null) {
+            newEventDto.setCategory(1L);
         }
-        category = categoryRepository.findById(newEventDto.getCategoryId()).orElseThrow(() -> new NoSuchElementException());
+        category = categoryRepository.findById(newEventDto.getCategory()).orElseThrow(() -> new NoSuchElementException());
+
         Event savedEvent = repository.save(EventMapper.newEventToEvent(newEventDto, category, user, location));
 
         return EventMapper.eventToFull(savedEvent);
@@ -113,9 +119,9 @@ public class EventService implements IEventService {
         if (!(oldEvent.getInitiator().getId() == userId)) {
             throw new IllegalStateException();
         }
-        update(oldEvent, dto);
+        Event event = update(oldEvent, dto);
 
-        return EventMapper.eventToFull(repository.save(oldEvent));
+        return EventMapper.eventToFull(event);
     }
 
     private List<EventShortDto> setEventShortDto(List<Event> events) {
@@ -141,7 +147,7 @@ public class EventService implements IEventService {
         return EventMapper.eventToFull(event);
     }
 
-    private void update(Event event, EventUpdateDto dto) {
+    private Event update(Event event, EventUpdateDto dto) {
         if (dto.getEventDate() != null) {
             event.setEventDate(dto.getEventDate());
         }
@@ -167,19 +173,32 @@ public class EventService implements IEventService {
         if (dto.getRequestModeration() != null) {
             event.setRequestModeration(dto.getRequestModeration());
         }
-        if (dto.getState() != null) {
-            event.setState(dto.getState());
+        if (dto.getStateAction() != null) {
+            System.out.println("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
+            switch (dto.getStateAction()) {
+                case PUBLISH_EVENT:
+                    System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+                    event.setState(EventStatus.PUBLISHED);
+                    break;
+                case REJECT_EVENT:
+                    event.setState(EventStatus.CANCELED);
+                    break;
+                case SEND_TO_REVIEW:
+                    event.setState(EventStatus.PENDING);
+                    break;
+            }
         }
+        return repository.save(event);
     }
 
     private void validateEventAdminUpdate(Event event, EventUpdateDto dto) {
         /**
          * TODO дата начала изменяемого события должна быть не ранее чем за час от даты публикации. (Ожидается код ошибки 409)
          */
-        if (event.getState().equals(EventStatus.PUBLISHED) && dto.getState().equals(EventStatus.CANCELED)) {
+        if (event.getState().equals(EventStatus.PUBLISHED) && dto.getStateAction().equals(EventStatus.CANCELED)) {
             throw new IllegalStateException();
         }
-        if (!event.getState().equals(EventStatus.PENDING) && dto.getState().equals(EventStatus.PUBLISHED)) {
+        if (!event.getState().equals(EventStatus.PENDING) && dto.getStateAction().equals(EventStatus.PUBLISHED)) {
             throw new IllegalStateException();
         }
 

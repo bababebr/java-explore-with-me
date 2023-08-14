@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.validator.constraints.Length;
-import ru.practicum.ewm.models.location.Location;
 import ru.practicum.ewm.models.location.LocationDto;
 
 import javax.validation.constraints.NotBlank;
@@ -22,7 +21,7 @@ public class NewEventDto {
     @NotBlank
     @Length(min = 20, max = 2000)
     String annotation;
-    Long categoryId;
+    Long category;
     @NotBlank
     @Length(min = 20, max = 7000)
     String description;

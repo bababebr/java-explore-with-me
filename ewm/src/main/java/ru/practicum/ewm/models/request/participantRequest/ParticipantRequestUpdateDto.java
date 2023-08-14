@@ -1,22 +1,17 @@
 package ru.practicum.ewm.models.request.participantRequest;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import ru.practicum.ewm.enums.ParticipantRequestStatus;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor(staticName = "create")
 @RequiredArgsConstructor(staticName = "create")
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ParticipantRequestDto {
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss[.SSS]")
-    LocalDateTime created;
-    Long id;
-    Long event;
-    Long requester;
+public class ParticipantRequestUpdateDto {
+    List<Long> requestIds;
     ParticipantRequestStatus status;
 }

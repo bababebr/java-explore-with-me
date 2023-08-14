@@ -1,6 +1,8 @@
 package ru.practicum.ewm.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import ru.practicum.ewm.mapper.CompilationMapper;
 import ru.practicum.ewm.mapper.EventMapper;
 import ru.practicum.ewm.models.compilations.Compilation;
 import ru.practicum.ewm.models.compilations.CompilationDto;
@@ -16,6 +18,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
+@Service
 public class CompilationService implements ICompilationService {
     private final CompilationRepository repository;
     private final EventRepository eventRepository;
@@ -28,34 +31,73 @@ public class CompilationService implements ICompilationService {
 
     @Override
     public CompilationDto add(NewCompilationDto compilationDto) {
-
-        return null;
+        Long nextCompilationId = repository.getNextCompilationId();
+        CompilationDto returnDto = CompilationDto.create();
+        if (compilationDto.getEvent_ids() == null || compilationDto.getEvent_ids().isEmpty()) {
+            repository.save(CompilationMapper.newCompilationToCompilation(null, compilationDto.getTitle(),
+                    compilationDto.getPinned(), nextCompilationId));
+        } else {
+            for (Long eventId : compilationDto.getEvent_ids()) {
+                Event event = eventRepository.findById(eventId)
+                        .orElseThrow(() -> new NoSuchElementException("Event not found"));
+                returnDto.getEventShortDto().add(EventMapper.eventToShort(event));
+            }
+        }
+        returnDto.setPinned(compilationDto.getPinned());
+        returnDto.setTitle(compilationDto.getTitle());
+        returnDto.setId(nextCompilationId);
+        return returnDto;
     }
 
     @Override
     public void delete(Long compilationId) {
-
+        repository.deleteAllByCompilationId(compilationId);
     }
 
     @Override
-    public CompilationDto update(CompilationDto compilationDto, Long compilationId) {
-        return null;
+    public CompilationDto update(NewCompilationDto compilationDto, Long compilationId) {
+        repository.deleteAllByCompilationId(compilationId);
+        return add(compilationDto);
     }
 
-    private CompilationDto saveCompilations(NewCompilationDto newCompilationDto) {
-        List<Compilation> compilationList = new ArrayList<>();
-        List<EventShortDto> eventShortDtos = new ArrayList<>();
-        for (Long eventId : newCompilationDto.getEvent_ids()) {
-            Event event = eventRepository.findById(eventId).orElseThrow(() -> new NoSuchElementException());
-            Compilation compilation = Compilation.create();
-            compilation.setEvent(event);
-            compilation.setPinned(newCompilationDto.getPinned());
-            compilation.setTitle(newCompilationDto.getTitle());
-            compilationList.add(repository.save(compilation));
-            eventShortDtos.add(EventMapper.eventToShort(event));
+    public List<CompilationDto> getCompilations() {
+        List<Long> ids = repository.getCompilationsIds();
+        List<CompilationDto> compilationDtos = new ArrayList<>();
+        if (ids.isEmpty()) {
+            return compilationDtos;
         }
-        CompilationDto compilationDto = CompilationDto.create(repository.getNextCompilationId(), eventShortDtos,
-                newCompilationDto.getPinned(), newCompilationDto.getTitle() );
-        return null;
+
+        for (Long id : ids) {
+            List<Compilation> compilation = repository.getCompilationsById(id);
+            List<EventShortDto> eventShortDtos = new ArrayList<>();
+            if (compilation.isEmpty()) {
+                continue;
+            }
+            eventShortDtos.addAll(compilation.stream().map(c -> EventMapper.eventToShort(c.getEvent()))
+                    .collect(Collectors.toList()));
+            CompilationDto compilationDto = CompilationDto.create(id, eventShortDtos, eventShortDtos.get(0).getPaid(),
+                    eventShortDtos.get(0).getTitle());
+            compilationDtos.add(compilationDto);
+        }
+        return compilationDtos;
+    }
+
+    @Override
+    public CompilationDto getCompilation(Long id) {
+        List<Compilation> compilations = repository.getCompilationsById(id);
+        CompilationDto compilationDto = CompilationDto.create();
+        List<EventShortDto> eventShortDtos = new ArrayList<>();
+        if (compilations.isEmpty()) {
+            return compilationDto;
+        } else {
+            for (Compilation c : compilations) {
+                eventShortDtos.add(EventMapper.eventToShort(c.getEvent()));
+            }
+            compilationDto.setId(compilations.get(0).getCompilationId());
+            compilationDto.setEventShortDto(eventShortDtos);
+            compilationDto.setTitle(compilations.get(0).getTitle());
+            compilationDto.setPinned(compilations.get(0).getPinned());
+            return compilationDto;
+        }
     }
 }

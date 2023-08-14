@@ -9,6 +9,7 @@ import ru.practicum.ewm.models.request.eventRequest.RequestDto;
 import ru.practicum.ewm.models.request.eventRequest.RequestUpdateDto;
 import ru.practicum.ewm.models.request.participantRequest.ParticipantRequest;
 import ru.practicum.ewm.models.request.participantRequest.ParticipantRequestDto;
+import ru.practicum.ewm.models.request.participantRequest.ParticipantRequestUpdateDto;
 import ru.practicum.ewm.repository.EventRepository;
 import ru.practicum.ewm.repository.ParticipantRepository;
 import ru.practicum.ewm.repository.RequestRepository;
@@ -16,6 +17,7 @@ import ru.practicum.ewm.repository.UserRepository;
 import ru.practicum.ewm.service.interfaces.IRequestService;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -37,13 +39,41 @@ public class RequestService implements IRequestService {
     }
 
     @Override
-    public RequestDto get(Long userId, Long eventId) {
+    public RequestDto getEventRequest(Long userId, Long eventId) {
         return null;
     }
 
     @Override
-    public RequestDto updateRequest(Long userId, Long eventId, RequestUpdateDto dto) {
+    public RequestDto updateEventRequest(Long userId, Long eventId, RequestUpdateDto dto) {
         return null;
+    }
+
+    @Override
+    public ParticipantRequestDto getRequest(Long userId, Long evenId) {
+       return ParticipantRequestMapper.requestToDto(participantRepository.findAllByUserIdAndId(userId, evenId)
+               .orElseThrow(() -> new NoSuchElementException("Request not found")));
+    }
+
+    @Override
+    public ParticipantRequestDto updateRequest(Long userId, Long eventId, ParticipantRequestDto dto) {
+        ParticipantRequest request = participantRepository.findByUserIdAndEventId(userId, eventId)
+                .orElseThrow(() -> new NoSuchElementException("Request not found"));
+        request.setStatus(dto.getStatus());
+        return ParticipantRequestMapper.requestToDto(participantRepository.save(request));
+    }
+
+    @Override
+    public List<ParticipantRequestDto> confirmRequest(Long userId, Long eventId, ParticipantRequestUpdateDto requestUpdateDto) {
+        List<ParticipantRequest> requests = participantRepository.findAllByUserIdAndEventIdAndIdIn(userId, eventId,
+                requestUpdateDto.getRequestIds());
+        ParticipantRequestStatus newStatus = requestUpdateDto.getStatus();
+        List<ParticipantRequestDto> requestDtos = new ArrayList<>();
+        for(ParticipantRequest request : requests) {
+            request.setStatus(newStatus);
+            ParticipantRequest r = participantRepository.save(request);
+            requestDtos.add(ParticipantRequestMapper.requestToDto(r));
+        }
+        return requestDtos;
     }
 
     @Override

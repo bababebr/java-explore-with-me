@@ -7,10 +7,13 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.enums.EventStatus;
 import ru.practicum.ewm.models.category.CategoryDto;
 import ru.practicum.ewm.models.category.NewCategoryDto;
+import ru.practicum.ewm.models.compilations.CompilationDto;
+import ru.practicum.ewm.models.compilations.NewCompilationDto;
 import ru.practicum.ewm.models.event.EventFullDto;
 import ru.practicum.ewm.models.event.EventUpdateDto;
 import ru.practicum.ewm.models.user.UserDto;
 import ru.practicum.ewm.service.interfaces.ICategoryService;
+import ru.practicum.ewm.service.interfaces.ICompilationService;
 import ru.practicum.ewm.service.interfaces.IEventService;
 import ru.practicum.ewm.service.interfaces.IUserService;
 
@@ -26,14 +29,20 @@ public class AdminController {
     IUserService userService;
     ICategoryService categoryService;
     IEventService eventService;
+    ICompilationService compilationService;
 
     @Autowired
-    public AdminController(IUserService userService, ICategoryService categoryService, IEventService eventService) {
+    public AdminController(IUserService userService, ICategoryService categoryService,
+                           IEventService eventService, ICompilationService compilationService) {
         this.userService = userService;
         this.categoryService = categoryService;
         this.eventService = eventService;
+        this.compilationService = compilationService;
     }
 
+    /**
+     * Admin: Users
+     */
     @PostMapping("/users")
     public UserDto add(@Valid @RequestBody UserDto user) {
         return userService.add(user);
@@ -87,4 +96,14 @@ public class AdminController {
     public EventFullDto updateEvent(@PathVariable Long eventId, @RequestBody EventUpdateDto dto) {
         return eventService.updateEventByAdmin(eventId, dto);
     }
+
+    /**
+     * Admin: Compilations
+     */
+
+    @PostMapping("/compilations")
+    CompilationDto addCompilation(@Valid @RequestBody NewCompilationDto dto) {
+        return compilationService.add(dto);
+    }
+
 }

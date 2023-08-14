@@ -11,6 +11,15 @@ public interface CompilationRepository extends JpaRepository<Compilation, Long> 
 
     List<Compilation> findAllByTitleAndPinned(String title, Boolean pinned);
 
+    Void deleteAllByCompilationId(Long id);
+
     @Query("SELECT MAX(c.compilationId) FROM Compilation as c")
     Long getNextCompilationId();
+
+    @Query("SELECT DISTINCT(c.compilationId) FROM Compilation AS c")
+    List<Long> getCompilationsIds();
+
+    @Query("SELECT c FROM Compilation AS c WHERE c.compilationId = ?1")
+    List<Compilation> getCompilationsById(Long id);
+
 }

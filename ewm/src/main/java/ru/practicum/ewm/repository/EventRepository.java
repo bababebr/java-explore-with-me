@@ -23,7 +23,6 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "AND (UPPER(e.description) like UPPER(concat('%',?1,'%')) OR ?1 is null) " +
             "AND (e.category.id IN ?2 OR ?2 is null) " +
             "AND ((e.eventDate BETWEEN ?5 AND ?6) OR length(?5) is null AND e.eventDate > current_timestamp) order by ?7")
-
     List<Event> getEvents(String text, List<Long> categories, boolean paid, boolean onlyAvailable, LocalDateTime start,
                           LocalDateTime end, String order, Pageable pageable);
 
@@ -33,6 +32,8 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> getUserEvents(List<Long> usersId, List<EventStatus> states, List<Long> categories,
                               LocalDateTime rangeStart, LocalDateTime rangeEnd, Pageable pageable);
 
+    @Query("SELECT e FROM Event as e WHERE e.id = ?1 AND e.state = ?2")
+    Optional<Event> getEvent(Long id, EventStatus state);
 
     @Query("SELECT MAX(e.id) FROM Event as e")
     Optional<Long> getNextEventId();

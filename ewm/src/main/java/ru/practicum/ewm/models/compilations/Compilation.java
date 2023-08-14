@@ -1,9 +1,6 @@
 package ru.practicum.ewm.models.compilations;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import ru.practicum.ewm.models.event.Event;
 
 import javax.persistence.*;
@@ -13,6 +10,7 @@ import javax.persistence.*;
 @Getter
 @Setter
 @RequiredArgsConstructor(staticName = "create")
+@AllArgsConstructor(staticName = "create")
 public class Compilation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

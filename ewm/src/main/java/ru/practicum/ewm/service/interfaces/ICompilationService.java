@@ -1,8 +1,9 @@
 package ru.practicum.ewm.service.interfaces;
 
-import ru.practicum.ewm.models.compilations.Compilation;
 import ru.practicum.ewm.models.compilations.CompilationDto;
 import ru.practicum.ewm.models.compilations.NewCompilationDto;
+
+import java.util.List;
 
 public interface ICompilationService {
 
@@ -10,6 +11,7 @@ public interface ICompilationService {
 
     void delete(Long compilationId);
 
-    CompilationDto update(CompilationDto compilationDto, Long compilationId);
+    CompilationDto update(NewCompilationDto compilationDto, Long compilationId);
 
+    CompilationDto getCompilation(Long id);
 }

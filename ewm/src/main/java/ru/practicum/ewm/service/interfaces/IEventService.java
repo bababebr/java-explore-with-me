@@ -27,4 +27,6 @@ public interface IEventService {
                                      LocalDateTime rangeStart, LocalDateTime rangeEnd, int from, int size);
 
     EventFullDto updateEventByAdmin(Long eventId, EventUpdateDto dto);
+
+    EventFullDto getEvent(Long id);
 }
