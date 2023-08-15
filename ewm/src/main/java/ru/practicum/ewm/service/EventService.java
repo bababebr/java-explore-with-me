@@ -93,7 +93,7 @@ public class EventService implements IEventService {
         if (text == null) {
             return new ArrayList<>();
         }
-        if(rangeStart != null && rangeEnd.isBefore(rangeStart)) {
+        if (rangeStart != null && rangeEnd.isBefore(rangeStart)) {
             throw new ValidationException("End date can't be before start");
         }
 
@@ -116,7 +116,7 @@ public class EventService implements IEventService {
         List<Event> events = repository.getUserEvents(usersId, states, categoriesId, rangeStart, rangeEnd,
                 PageRequest.of(from, size));
         List<EventFullDto> returnList = new ArrayList<>();
-        for(Event event : events) {
+        for (Event event : events) {
             Integer confirmedRequests = getConfirmedRequests(event.getId());
             returnList.add(EventMapper.eventToFull(event, confirmedRequests));
         }
@@ -167,7 +167,8 @@ public class EventService implements IEventService {
         }
         if (dto.getCategoryId() != null) {
             event.setCategory(categoryRepository.findById(dto.getCategoryId())
-                    .orElseThrow(() -> new NoSuchElementException()));
+                    .orElseThrow(() -> new NoSuchElementException(String
+                            .format("Category with ID=%s not found", dto.getCategoryId()))));
         }
         if (dto.getDescription() != null) {
             event.setDescription(dto.getDescription());
@@ -185,11 +186,10 @@ public class EventService implements IEventService {
             event.setRequestModeration(dto.getRequestModeration());
         }
         if (dto.getStateAction() != null) {
-            System.out.println("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
             switch (dto.getStateAction()) {
                 case PUBLISH_EVENT:
-                    System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
                     event.setState(EventStatus.PUBLISHED);
+                    event.setPublishedDate(LocalDateTime.now());
                     break;
                 case REJECT_EVENT:
                     event.setState(EventStatus.CANCELED);
@@ -203,16 +203,15 @@ public class EventService implements IEventService {
     }
 
     private void validateEventAdminUpdate(Event event, EventUpdateDto dto) {
-
-        event.
-
+        if (dto.getEventDate() != null && dto.getEventDate().isBefore(event.getCreatedOn().minusHours(2))) {
+            throw new ValidationException("Event date cannot be earlier than creation date.");
+        }
         if (event.getState().equals(EventStatus.PUBLISHED) && dto.getStateAction().equals(EventStatus.CANCELED)) {
-            throw new IllegalStateException();
+            throw new IllegalStateException("Can't cancel published event.");
         }
         if (!event.getState().equals(EventStatus.PENDING) && dto.getStateAction().equals(EventStatus.PUBLISHED)) {
-            throw new IllegalStateException();
+            throw new IllegalStateException("Can't approve cancelled or published request.");
         }
-
     }
 
     private int getConfirmedRequests(Long eventId) {

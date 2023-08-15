@@ -43,6 +43,8 @@ public class Event {
     Integer participantLimit;
     @Column(name = "request_moderation")
     Boolean requestModeration;
+    @Column(name = "published_date")
+    LocalDateTime publishedDate;
     @Enumerated(EnumType.STRING)
     EventStatus state;
     String title;

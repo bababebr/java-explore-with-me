@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS Event
     PAID               BOOL                                                NOT NULL,
     PARTICIPANT_LIMIT  INT                                                 NOT NULL,
     REQUEST_MODERATION BOOL                                                NOT NULL,
+    PUBLISHED_DATE TIMESTAMP,
     STATE              VARCHAR                                             NOT NULL,
     TITLE              VARCHAR                                             NOT NULL
 );

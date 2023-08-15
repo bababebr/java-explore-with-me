@@ -55,6 +55,7 @@ public class EventMapper {
                 dto.getPaid(),
                 dto.getParticipantLimit(),
                 dto.getRequestModeration(),
+                null,
                 EventStatus.PENDING,
                 dto.getTitle());
     }
