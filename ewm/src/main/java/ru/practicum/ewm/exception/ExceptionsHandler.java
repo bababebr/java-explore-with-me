@@ -1,5 +1,6 @@
 package ru.practicum.ewm.exception;
 
+import org.postgresql.util.PSQLException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -20,7 +21,7 @@ public class ExceptionsHandler {
                 HttpStatus.BAD_REQUEST.toString(), LocalDateTime.now());
     }
 
-    @ExceptionHandler({IllegalArgumentException.class, IllegalStateException.class})
+    @ExceptionHandler({IllegalArgumentException.class, IllegalStateException.class, PSQLException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse conflictException(final RuntimeException e) {
         return new ErrorResponse(e.getStackTrace(), e.getMessage(), e.getLocalizedMessage(),

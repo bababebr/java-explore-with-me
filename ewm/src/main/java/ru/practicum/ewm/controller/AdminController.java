@@ -50,13 +50,14 @@ public class AdminController {
     }
 
     @GetMapping("/users")
-    public List<UserDto> get(List<Long> usersId,
+    public List<UserDto> get(@RequestParam(name = "ids", required = false) List<Long> usersId,
                              @RequestParam(defaultValue = "0") @Min(0) int from,
                              @RequestParam(defaultValue = "10") @Min(1) int size) {
         return userService.getUsers(usersId, from, size);
     }
 
     @DeleteMapping("/users/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long userId) {
         userService.delete(userId);
     }
@@ -71,6 +72,7 @@ public class AdminController {
     }
 
     @DeleteMapping("/categories/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCategory(@PathVariable Long id) {
         categoryService.delete(id);
     }
@@ -84,9 +86,9 @@ public class AdminController {
      * Admin:Events
      */
     @GetMapping("/events")
-    public List<EventFullDto> getUsersEvents(@RequestParam(required = false) List<Long> users,
+    public List<EventFullDto> getUsersEvents(@RequestParam(defaultValue = "0") List<Long> users,
                                              @RequestParam(required = false) List<EventStatus> states,
-                                             @RequestParam(required = false) List<Long> categories,
+                                             @RequestParam(defaultValue = "0") List<Long> categories,
                                              @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
                                              @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
                                              @RequestParam(defaultValue = "0") @Min(0) int from,
@@ -109,4 +111,9 @@ public class AdminController {
         return compilationService.add(dto);
     }
 
+    @PatchMapping("/compilations/{id}")
+    CompilationDto updateCompilation(@RequestBody NewCompilationDto dto,
+                                     @PathVariable Long id) {
+        return compilationService.update(dto, id);
+    }
 }

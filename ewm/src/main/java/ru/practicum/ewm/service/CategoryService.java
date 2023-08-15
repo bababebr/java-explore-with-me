@@ -39,7 +39,7 @@ public class CategoryService implements ICategoryService {
     @Override
     public void delete(Long id) {
         Category category = repository.findById(id).orElseThrow(() -> new NoSuchElementException());
-        if(eventRepository.findAllByCategory(category).isEmpty()) {
+        if (eventRepository.findAllByCategory(category).isEmpty()) {
             repository.delete(category);
         } else {
             throw new IllegalStateException(String.format("Event with category=%s exist", category.getId()));
@@ -57,5 +57,12 @@ public class CategoryService implements ICategoryService {
     public List<CategoryDto> getAll(int form, int size) {
         List<Category> categories = repository.findAll(PageRequest.of(form, size)).getContent();
         return categories.stream().map(CategoryMapper::categoryToDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public CategoryDto get(Long id) {
+        Category category = repository.findById(id).orElseThrow(()
+                -> new NoSuchElementException(String.format("Category with ID=%s not found.", id)));
+        return CategoryMapper.categoryToDto(category);
     }
 }

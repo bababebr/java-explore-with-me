@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.practicum.ewm.enums.EventStatus;
 import ru.practicum.ewm.enums.ParticipantRequestStatus;
 import ru.practicum.ewm.enums.Sort;
+import ru.practicum.ewm.enums.StateAction;
 import ru.practicum.ewm.mapper.EventMapper;
 import ru.practicum.ewm.models.category.Category;
 import ru.practicum.ewm.models.event.*;
@@ -88,8 +89,9 @@ public class EventService implements IEventService {
     }
 
     @Override
-    public List<EventShortDto> getEvents(String text, List<Long> categories, boolean paid, LocalDateTime rangeStart,
-                                         LocalDateTime rangeEnd, boolean onlyAvailable, Sort sort, int from, int size) {
+    public List<EventShortDto> getEvents(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
+                                         LocalDateTime rangeEnd, Boolean onlyAvailable, Sort sort, int from, int size) {
+        System.out.println(paid);
         if (text == null) {
             return new ArrayList<>();
         }
@@ -104,8 +106,10 @@ public class EventService implements IEventService {
             sortType = "e.event_date";
         }
 
-        List<Event> events = repository.getEvents(text, categories, paid, onlyAvailable, rangeStart,
-                rangeEnd, sortType, PageRequest.of(from, size));
+/*        List<Event> events = repository.getEvents(text, categories, paid, onlyAvailable, rangeStart,
+                rangeEnd, sortType, PageRequest.of(from, size));*/
+        List<Event> events = repository.getEventsTTTT(categories, onlyAvailable, paid, text, rangeStart,
+                rangeEnd, PageRequest.of(from, size));
 
         return events.stream().map(EventMapper::eventToShort).collect(Collectors.toList());
     }
@@ -126,6 +130,10 @@ public class EventService implements IEventService {
     @Override
     public EventFullDto updateEvent(Long userId, Long eventId, EventUpdateDto dto) {
         Event oldEvent = repository.findById(eventId).orElseThrow(() -> new NoSuchElementException());
+        if(oldEvent.getState().equals(EventStatus.PUBLISHED)) {
+            throw new IllegalStateException("Can't update cancelled or published event.");
+        }
+        validateEventAdminUpdate(oldEvent, dto);
         if (!(oldEvent.getInitiator().getId() == userId)) {
             throw new IllegalStateException();
         }
@@ -206,11 +214,14 @@ public class EventService implements IEventService {
         if (dto.getEventDate() != null && dto.getEventDate().isBefore(event.getCreatedOn().minusHours(2))) {
             throw new ValidationException("Event date cannot be earlier than creation date.");
         }
-        if (event.getState().equals(EventStatus.PUBLISHED) && dto.getStateAction().equals(EventStatus.CANCELED)) {
+        if (event.getState().equals(EventStatus.PUBLISHED) && dto.getStateAction().equals(StateAction.REJECT_EVENT)) {
             throw new IllegalStateException("Can't cancel published event.");
         }
-        if (!event.getState().equals(EventStatus.PENDING) && dto.getStateAction().equals(EventStatus.PUBLISHED)) {
-            throw new IllegalStateException("Can't approve cancelled or published request.");
+        if (event.getState().equals(EventStatus.PUBLISHED) && dto.getStateAction().equals(StateAction.PUBLISH_EVENT)) {
+            throw new IllegalStateException("Event already published.");
+        }
+        if(event.getState().equals(EventStatus.CANCELED) && dto.getStateAction().equals(StateAction.PUBLISH_EVENT)) {
+            throw new IllegalStateException("Can't publish cancelled event.");
         }
     }
 

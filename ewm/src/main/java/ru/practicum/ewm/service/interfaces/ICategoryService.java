@@ -14,4 +14,6 @@ public interface ICategoryService {
     CategoryDto update(Long id, NewCategoryDto dto);
 
     List<CategoryDto> getAll(int from, int size);
+
+    CategoryDto get(Long id);
 }
