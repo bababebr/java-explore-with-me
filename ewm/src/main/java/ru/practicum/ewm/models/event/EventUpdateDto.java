@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.validator.constraints.Length;
+import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.ewm.enums.StateAction;
 import ru.practicum.ewm.models.location.LocationDto;
 
@@ -20,7 +21,7 @@ public class EventUpdateDto {
     Long categoryId;
     @Length(min = 20, max = 7000)
     String description;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss[.S]")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime eventDate;
     LocationDto location;
     Boolean paid;

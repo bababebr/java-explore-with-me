@@ -11,7 +11,5 @@ import java.util.List;
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 
-    @Query("SELECT c FROM Category as c")
-    List<Category> findAll(Pageable pageable);
 
 }

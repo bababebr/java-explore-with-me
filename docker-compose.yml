@@ -33,7 +33,7 @@ services:
       - POSTGRES_USER=ewm
       - POSTGRES_DB=ewm
 
-  emw:
+  ewm:
     build: ./ewm
     image: ewm
     container_name: ewm

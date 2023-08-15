@@ -14,7 +14,6 @@ import ru.practicum.ewm.models.user.User;
 import ru.practicum.ewm.repository.*;
 import ru.practicum.ewm.service.interfaces.IEventService;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import javax.validation.ValidationException;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -53,8 +52,7 @@ public class EventService implements IEventService {
     public EventFullDto getEvent(Long id) {
         Event event = repository.getEvent(id, EventStatus.PUBLISHED)
                 .orElseThrow(() -> new NoSuchElementException("Event not found"));
-        Integer confirmedRequests = participantRepository.countAllByEventIdAndStatusIn(id,
-                List.of(ParticipantRequestStatus.CONFIRMED, ParticipantRequestStatus.PENDING));
+        Integer confirmedRequests = getConfirmedRequests(id);
         return EventMapper.eventToFull(event, confirmedRequests);
     }
 
@@ -79,8 +77,7 @@ public class EventService implements IEventService {
         category = categoryRepository.findById(newEventDto.getCategory()).orElseThrow(() -> new NoSuchElementException());
 
         Event savedEvent = repository.save(EventMapper.newEventToEvent(newEventDto, category, user, location));
-        Integer confirmedRequests = participantRepository.countAllByEventIdAndStatusIn(savedEvent.getId(),
-                List.of(ParticipantRequestStatus.CONFIRMED, ParticipantRequestStatus.PENDING));
+        Integer confirmedRequests = getConfirmedRequests(savedEvent.getId());
 
         return EventMapper.eventToFull(savedEvent, confirmedRequests);
     }
@@ -120,8 +117,7 @@ public class EventService implements IEventService {
                 PageRequest.of(from, size));
         List<EventFullDto> returnList = new ArrayList<>();
         for(Event event : events) {
-            Integer confirmedRequests = participantRepository.countAllByEventIdAndStatusIn(event.getId(),
-                    List.of(ParticipantRequestStatus.CONFIRMED, ParticipantRequestStatus.PENDING));
+            Integer confirmedRequests = getConfirmedRequests(event.getId());
             returnList.add(EventMapper.eventToFull(event, confirmedRequests));
         }
         return returnList;
@@ -134,9 +130,7 @@ public class EventService implements IEventService {
             throw new IllegalStateException();
         }
         Event event = update(oldEvent, dto);
-        Integer confirmedRequests = participantRepository.countAllByEventIdAndStatusIn(eventId,
-                List.of(ParticipantRequestStatus.CONFIRMED, ParticipantRequestStatus.PENDING));
-
+        Integer confirmedRequests = getConfirmedRequests(eventId);
         return EventMapper.eventToFull(event, confirmedRequests);
     }
 
@@ -160,8 +154,7 @@ public class EventService implements IEventService {
         Event event = repository.findById(eventId).orElseThrow(() -> new NoSuchElementException());
         validateEventAdminUpdate(event, dto);
         update(event, dto);
-        Integer confirmedRequests = participantRepository.countAllByEventIdAndStatusIn(eventId,
-                List.of(ParticipantRequestStatus.CONFIRMED, ParticipantRequestStatus.PENDING));
+        Integer confirmedRequests = getConfirmedRequests(eventId);
         return EventMapper.eventToFull(event, confirmedRequests);
     }
 
@@ -210,9 +203,9 @@ public class EventService implements IEventService {
     }
 
     private void validateEventAdminUpdate(Event event, EventUpdateDto dto) {
-        /**
-         * TODO дата начала изменяемого события должна быть не ранее чем за час от даты публикации. (Ожидается код ошибки 409)
-         */
+
+        event.
+
         if (event.getState().equals(EventStatus.PUBLISHED) && dto.getStateAction().equals(EventStatus.CANCELED)) {
             throw new IllegalStateException();
         }
@@ -220,6 +213,11 @@ public class EventService implements IEventService {
             throw new IllegalStateException();
         }
 
+    }
+
+    private int getConfirmedRequests(Long eventId) {
+        return participantRepository.countAllByEventIdAndStatusIn(eventId,
+                List.of(ParticipantRequestStatus.CONFIRMED, ParticipantRequestStatus.PENDING));
     }
 
 }

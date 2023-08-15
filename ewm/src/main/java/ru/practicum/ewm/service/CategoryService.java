@@ -1,6 +1,7 @@
 package ru.practicum.ewm.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.mapper.CategoryMapper;
 import ru.practicum.ewm.models.category.Category;
@@ -12,6 +13,7 @@ import ru.practicum.ewm.service.interfaces.ICategoryService;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 public class CategoryService implements ICategoryService {
@@ -53,6 +55,7 @@ public class CategoryService implements ICategoryService {
 
     @Override
     public List<CategoryDto> getAll(int form, int size) {
-        return
+        List<Category> categories = repository.findAll(PageRequest.of(form, size)).getContent();
+        return categories.stream().map(CategoryMapper::categoryToDto).collect(Collectors.toList());
     }
 }

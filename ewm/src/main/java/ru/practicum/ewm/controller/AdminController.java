@@ -1,6 +1,5 @@
 package ru.practicum.ewm.controller;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -96,7 +95,7 @@ public class AdminController {
     }
 
     @PatchMapping("/events/{eventId}")
-    public EventFullDto updateEvent(@PathVariable Long eventId, @RequestBody EventUpdateDto dto) {
+    public EventFullDto updateEvent(@PathVariable Long eventId, @Valid @RequestBody EventUpdateDto dto) {
         return eventService.updateEventByAdmin(eventId, dto);
     }
 
