@@ -1,6 +1,7 @@
 package ru.practicum.ewm.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.models.event.EventFullDto;
 import ru.practicum.ewm.models.event.EventShortDto;
@@ -37,6 +38,7 @@ public class PrivateController {
     }
 
     @PostMapping("/{userId}/events")
+    @ResponseStatus(HttpStatus.CREATED)
     public EventFullDto addEvent(@PathVariable Long userId,
                                  @Valid @RequestBody NewEventDto eventDto) {
         return eventService.addEvent(userId, eventDto);
@@ -72,6 +74,7 @@ public class PrivateController {
     }
 
     @PostMapping("/{userId}/requests")
+    @ResponseStatus(HttpStatus.CREATED)
     public ParticipantRequestDto addUserRequest(@PathVariable Long userId, @RequestParam Long eventId) {
         return requestService.addUserRequest(userId, eventId);
     }

@@ -14,6 +14,7 @@ import ru.practicum.ewm.models.user.User;
 import ru.practicum.ewm.repository.*;
 import ru.practicum.ewm.service.interfaces.IEventService;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.validation.ValidationException;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -52,7 +53,9 @@ public class EventService implements IEventService {
     public EventFullDto getEvent(Long id) {
         Event event = repository.getEvent(id, EventStatus.PUBLISHED)
                 .orElseThrow(() -> new NoSuchElementException("Event not found"));
-        return EventMapper.eventToFull(event);
+        Integer confirmedRequests = participantRepository.countAllByEventIdAndStatusIn(id,
+                List.of(ParticipantRequestStatus.CONFIRMED, ParticipantRequestStatus.PENDING));
+        return EventMapper.eventToFull(event, confirmedRequests);
     }
 
     @Override
@@ -76,8 +79,10 @@ public class EventService implements IEventService {
         category = categoryRepository.findById(newEventDto.getCategory()).orElseThrow(() -> new NoSuchElementException());
 
         Event savedEvent = repository.save(EventMapper.newEventToEvent(newEventDto, category, user, location));
+        Integer confirmedRequests = participantRepository.countAllByEventIdAndStatusIn(savedEvent.getId(),
+                List.of(ParticipantRequestStatus.CONFIRMED, ParticipantRequestStatus.PENDING));
 
-        return EventMapper.eventToFull(savedEvent);
+        return EventMapper.eventToFull(savedEvent, confirmedRequests);
     }
 
     @Override
@@ -90,6 +95,9 @@ public class EventService implements IEventService {
                                          LocalDateTime rangeEnd, boolean onlyAvailable, Sort sort, int from, int size) {
         if (text == null) {
             return new ArrayList<>();
+        }
+        if(rangeStart != null && rangeEnd.isBefore(rangeStart)) {
+            throw new ValidationException("End date can't be before start");
         }
 
         String sortType;
@@ -110,7 +118,13 @@ public class EventService implements IEventService {
                                             LocalDateTime rangeStart, LocalDateTime rangeEnd, int from, int size) {
         List<Event> events = repository.getUserEvents(usersId, states, categoriesId, rangeStart, rangeEnd,
                 PageRequest.of(from, size));
-        return events.stream().map(EventMapper::eventToFull).collect(Collectors.toList());
+        List<EventFullDto> returnList = new ArrayList<>();
+        for(Event event : events) {
+            Integer confirmedRequests = participantRepository.countAllByEventIdAndStatusIn(event.getId(),
+                    List.of(ParticipantRequestStatus.CONFIRMED, ParticipantRequestStatus.PENDING));
+            returnList.add(EventMapper.eventToFull(event, confirmedRequests));
+        }
+        return returnList;
     }
 
     @Override
@@ -120,8 +134,10 @@ public class EventService implements IEventService {
             throw new IllegalStateException();
         }
         Event event = update(oldEvent, dto);
+        Integer confirmedRequests = participantRepository.countAllByEventIdAndStatusIn(eventId,
+                List.of(ParticipantRequestStatus.CONFIRMED, ParticipantRequestStatus.PENDING));
 
-        return EventMapper.eventToFull(event);
+        return EventMapper.eventToFull(event, confirmedRequests);
     }
 
     private List<EventShortDto> setEventShortDto(List<Event> events) {
@@ -144,7 +160,9 @@ public class EventService implements IEventService {
         Event event = repository.findById(eventId).orElseThrow(() -> new NoSuchElementException());
         validateEventAdminUpdate(event, dto);
         update(event, dto);
-        return EventMapper.eventToFull(event);
+        Integer confirmedRequests = participantRepository.countAllByEventIdAndStatusIn(eventId,
+                List.of(ParticipantRequestStatus.CONFIRMED, ParticipantRequestStatus.PENDING));
+        return EventMapper.eventToFull(event, confirmedRequests);
     }
 
     private Event update(Event event, EventUpdateDto dto) {

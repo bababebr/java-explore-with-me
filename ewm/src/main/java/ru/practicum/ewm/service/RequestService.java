@@ -2,6 +2,7 @@ package ru.practicum.ewm.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.practicum.ewm.enums.EventStatus;
 import ru.practicum.ewm.enums.ParticipantRequestStatus;
 import ru.practicum.ewm.mapper.ParticipantRequestMapper;
 import ru.practicum.ewm.models.event.Event;
@@ -50,8 +51,8 @@ public class RequestService implements IRequestService {
 
     @Override
     public ParticipantRequestDto getRequest(Long userId, Long evenId) {
-       return ParticipantRequestMapper.requestToDto(participantRepository.findAllByUserIdAndId(userId, evenId)
-               .orElseThrow(() -> new NoSuchElementException("Request not found")));
+        return ParticipantRequestMapper.requestToDto(participantRepository.findAllByUserIdAndId(userId, evenId)
+                .orElseThrow(() -> new NoSuchElementException("Request not found")));
     }
 
     @Override
@@ -68,7 +69,7 @@ public class RequestService implements IRequestService {
                 requestUpdateDto.getRequestIds());
         ParticipantRequestStatus newStatus = requestUpdateDto.getStatus();
         List<ParticipantRequestDto> requestDtos = new ArrayList<>();
-        for(ParticipantRequest request : requests) {
+        for (ParticipantRequest request : requests) {
             request.setStatus(newStatus);
             ParticipantRequest r = participantRepository.save(request);
             requestDtos.add(ParticipantRequestMapper.requestToDto(r));
@@ -98,28 +99,34 @@ public class RequestService implements IRequestService {
 
     private ParticipantRequestDto validateUserRequest(Long userId, Long eventId) {
         /**
-         * Is request already exist
-         */
-        if (participantRepository.findByUserIdAndEventId(userId, eventId).isPresent()) {
-            throw new IllegalStateException(String.format("Request from User=%s for Event=%s already exist", userId, eventId));
-        }
-        /**
          * Is Event and User exist
          */
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NoSuchElementException(String.format("Event with ID=%s not found.", eventId)));
         userRepository.findById(eventId)
                 .orElseThrow(() -> new NoSuchElementException(String.format("User with ID=%s not found.", userId)));
+
+        if (event.getState() != EventStatus.PUBLISHED) {
+            throw new IllegalStateException(String.format("Event=%s not published, cannot create a request", event.getId()));
+        }
+
+        /**
+         * Is request already exist
+         */
+        if (participantRepository.findByUserIdAndEventId(userId, eventId).isPresent()) {
+            throw new IllegalStateException(String.format("Request from User=%s for Event=%s already exist", userId, eventId));
+        }
         /**
          * Is participant limit reached
          */
-
-        if (participantRepository.countAllByEventIdAndStatusIn(eventId,
+        Integer part = participantRepository.countAllByEventIdAndStatusIn(eventId,
                 List.of(ParticipantRequestStatus.CONFIRMED,
-                        ParticipantRequestStatus.PENDING)) > event.getParticipantLimit() && event.getParticipantLimit() != 0) {
+                        ParticipantRequestStatus.PENDING));
+        System.out.println(part);
+        System.out.println(event.getParticipantLimit());
+        if (part >= event.getParticipantLimit() && event.getParticipantLimit() != 0) {
             throw new IllegalStateException("Participant limit has been reached.");
         }
-
         /**
          * Is User own Event
          */
@@ -129,13 +136,12 @@ public class RequestService implements IRequestService {
         /**
          * Is event published
          */
-
         ParticipantRequestDto dto = ParticipantRequestDto
                 .create(LocalDateTime.now(), 0L, eventId, userId, ParticipantRequestStatus.CONFIRMED);
-        ParticipantRequest request;
-        if (event.getRequestModeration() != false) {
+        if (event.getRequestModeration() == true && event.getParticipantLimit() != 0) {
             dto.setStatus(ParticipantRequestStatus.PENDING);
         }
+        ParticipantRequest request;
         request = participantRepository.save(ParticipantRequestMapper.dtoToRequest(dto));
         return ParticipantRequestMapper.requestToDto(request);
     }

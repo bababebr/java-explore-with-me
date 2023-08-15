@@ -31,16 +31,16 @@ public class CompilationService implements ICompilationService {
 
     @Override
     public CompilationDto add(NewCompilationDto compilationDto) {
-        Long nextCompilationId = repository.getNextCompilationId();
+        Long nextCompilationId = repository.getNextCompilationId().orElse(1L);
         CompilationDto returnDto = CompilationDto.create();
-        if (compilationDto.getEvent_ids() == null || compilationDto.getEvent_ids().isEmpty()) {
+        if (compilationDto.getEvents() == null || compilationDto.getEvents().isEmpty()) {
             repository.save(CompilationMapper.newCompilationToCompilation(null, compilationDto.getTitle(),
                     compilationDto.getPinned(), nextCompilationId));
         } else {
-            for (Long eventId : compilationDto.getEvent_ids()) {
+            for (Long eventId : compilationDto.getEvents()) {
                 Event event = eventRepository.findById(eventId)
                         .orElseThrow(() -> new NoSuchElementException("Event not found"));
-                returnDto.getEventShortDto().add(EventMapper.eventToShort(event));
+                returnDto.getEvents().add(EventMapper.eventToShort(event));
             }
         }
         returnDto.setPinned(compilationDto.getPinned());
@@ -94,7 +94,7 @@ public class CompilationService implements ICompilationService {
                 eventShortDtos.add(EventMapper.eventToShort(c.getEvent()));
             }
             compilationDto.setId(compilations.get(0).getCompilationId());
-            compilationDto.setEventShortDto(eventShortDtos);
+            compilationDto.setEvents(eventShortDtos);
             compilationDto.setTitle(compilations.get(0).getTitle());
             compilationDto.setPinned(compilations.get(0).getPinned());
             return compilationDto;

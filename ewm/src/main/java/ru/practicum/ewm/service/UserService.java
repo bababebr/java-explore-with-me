@@ -24,8 +24,12 @@ public class UserService implements IUserService {
 
     @Override
     public UserDto add(UserDto userDto) {
-        User user = repository.save(UserMapper.dtoToUser(userDto));
-        return UserMapper.userToDto(user);
+        try {
+            User user = repository.save(UserMapper.dtoToUser(userDto));
+            return UserMapper.userToDto(user);
+        } catch (RuntimeException e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
     }
 
     @Override

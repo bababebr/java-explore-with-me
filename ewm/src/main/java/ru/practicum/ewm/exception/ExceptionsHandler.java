@@ -20,6 +20,13 @@ public class ExceptionsHandler {
                 HttpStatus.BAD_REQUEST.toString(), LocalDateTime.now());
     }
 
+    @ExceptionHandler({IllegalArgumentException.class, IllegalStateException.class})
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse conflictException(final RuntimeException e) {
+        return new ErrorResponse(e.getStackTrace(), e.getMessage(), e.getLocalizedMessage(),
+                HttpStatus.CONFLICT.toString(), LocalDateTime.now());
+    }
+
     @ExceptionHandler({EntityNotFoundException.class, NoSuchElementException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse itemNotFoundException(final RuntimeException e) {

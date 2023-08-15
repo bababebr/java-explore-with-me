@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import ru.practicum.ewm.enums.EventStatus;
+import ru.practicum.ewm.models.category.Category;
 import ru.practicum.ewm.models.event.Event;
 
 import java.time.LocalDateTime;
@@ -31,6 +32,8 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "AND (e.eventDate between ?4 AND ?5)")
     List<Event> getUserEvents(List<Long> usersId, List<EventStatus> states, List<Long> categories,
                               LocalDateTime rangeStart, LocalDateTime rangeEnd, Pageable pageable);
+
+    List<Event> findAllByCategory(Category category);
 
     @Query("SELECT e FROM Event as e WHERE e.id = ?1 AND e.state = ?2")
     Optional<Event> getEvent(Long id, EventStatus state);

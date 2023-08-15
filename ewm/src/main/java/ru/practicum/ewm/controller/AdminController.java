@@ -3,6 +3,7 @@ package ru.practicum.ewm.controller;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.enums.EventStatus;
 import ru.practicum.ewm.models.category.CategoryDto;
@@ -44,6 +45,7 @@ public class AdminController {
      * Admin: Users
      */
     @PostMapping("/users")
+    @ResponseStatus(HttpStatus.CREATED)
     public UserDto add(@Valid @RequestBody UserDto user) {
         return userService.add(user);
     }
@@ -64,6 +66,7 @@ public class AdminController {
      * Admin:categories
      */
     @PostMapping("/categories")
+    @ResponseStatus(HttpStatus.CREATED)
     public CategoryDto addCategory(@Valid @RequestBody NewCategoryDto categoryDto) {
         return categoryService.add(categoryDto);
     }
@@ -102,6 +105,7 @@ public class AdminController {
      */
 
     @PostMapping("/compilations")
+    @ResponseStatus(HttpStatus.CREATED)
     CompilationDto addCompilation(@Valid @RequestBody NewCompilationDto dto) {
         return compilationService.add(dto);
     }

@@ -2,8 +2,9 @@ package ru.practicum.ewm.models.compilations;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.validator.constraints.Length;
 
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
@@ -13,9 +14,10 @@ import java.util.List;
 @RequiredArgsConstructor(staticName = "create")
 @AllArgsConstructor(staticName = "create")
 public class NewCompilationDto {
-    List<Long> event_ids;
+    List<Long> events;
     @NotNull
-    Boolean pinned;
-    @NotEmpty
+    Boolean pinned = false;
+    @NotBlank
+    @Length(max = 50)
     String title;
 }

@@ -24,10 +24,10 @@ public class EventMapper {
                 0);
     }
 
-    public static EventFullDto eventToFull(Event event) {
+    public static EventFullDto eventToFull(Event event, Integer confirmedRequests) {
         return EventFullDto.create(event.getAnnotation(),
                 CategoryMapper.categoryToDto(event.getCategory()),
-                0,
+                confirmedRequests,
                 event.getCreatedOn(),
                 event.getDescription(),
                 event.getEventDate(),

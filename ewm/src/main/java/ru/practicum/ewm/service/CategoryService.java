@@ -7,28 +7,41 @@ import ru.practicum.ewm.models.category.Category;
 import ru.practicum.ewm.models.category.CategoryDto;
 import ru.practicum.ewm.models.category.NewCategoryDto;
 import ru.practicum.ewm.repository.CategoryRepository;
+import ru.practicum.ewm.repository.EventRepository;
 import ru.practicum.ewm.service.interfaces.ICategoryService;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
 public class CategoryService implements ICategoryService {
     private final CategoryRepository repository;
+    private final EventRepository eventRepository;
 
     @Autowired
-    public CategoryService(CategoryRepository repository) {
+    public CategoryService(CategoryRepository repository, EventRepository eventRepository) {
         this.repository = repository;
+        this.eventRepository = eventRepository;
     }
 
     @Override
     public CategoryDto add(NewCategoryDto dto) {
-        Category category = repository.save(CategoryMapper.newCategoryToCategory(dto));
-       return CategoryMapper.categoryToDto(category);
+        try {
+            Category category = repository.save(CategoryMapper.newCategoryToCategory(dto));
+            return CategoryMapper.categoryToDto(category);
+        } catch (RuntimeException e) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
     }
 
     @Override
     public void delete(Long id) {
-        repository.findById(id).orElseThrow(() -> new NoSuchElementException());
+        Category category = repository.findById(id).orElseThrow(() -> new NoSuchElementException());
+        if(eventRepository.findAllByCategory(category).isEmpty()) {
+            repository.delete(category);
+        } else {
+            throw new IllegalStateException(String.format("Event with category=%s exist", category.getId()));
+        }
     }
 
     @Override
@@ -36,5 +49,10 @@ public class CategoryService implements ICategoryService {
         Category category = repository.findById(id).orElseThrow(() -> new NoSuchElementException());
         category.setName(dto.getName());
         return CategoryMapper.categoryToDto(repository.save(category));
+    }
+
+    @Override
+    public List<CategoryDto> getAll(int form, int size) {
+        return
     }
 }

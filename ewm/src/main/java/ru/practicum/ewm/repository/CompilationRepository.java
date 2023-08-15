@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import ru.practicum.ewm.models.compilations.Compilation;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CompilationRepository extends JpaRepository<Compilation, Long> {
 
@@ -14,7 +15,7 @@ public interface CompilationRepository extends JpaRepository<Compilation, Long> 
     Void deleteAllByCompilationId(Long id);
 
     @Query("SELECT MAX(c.compilationId) FROM Compilation as c")
-    Long getNextCompilationId();
+    Optional<Long> getNextCompilationId();
 
     @Query("SELECT DISTINCT(c.compilationId) FROM Compilation AS c")
     List<Long> getCompilationsIds();
