@@ -18,7 +18,7 @@ public class StatClientController {
 
     private final StatsClient statClient;
 
-    @GetMapping("/stats")
+    @GetMapping("/stat")
     public ResponseEntity<Object> get(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
                                       @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
                                       @RequestParam(required = false) List<String> uris,
@@ -26,7 +26,7 @@ public class StatClientController {
         return statClient.get(start, end, uris, unique);
     }
 
-    @PostMapping("/hit")
+    @PostMapping("/hits")
     public ResponseEntity<Object> post(@Validated @RequestBody HitDto dto) {
         return statClient.post(dto);
     }

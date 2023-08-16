@@ -15,6 +15,7 @@ import ru.practicum.ewm.models.user.User;
 import ru.practicum.ewm.repository.*;
 import ru.practicum.ewm.service.interfaces.IEventService;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.ValidationException;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -50,7 +51,7 @@ public class EventService implements IEventService {
     }
 
     @Override
-    public EventFullDto getEvent(Long id) {
+    public EventFullDto getEvent(Long id, HttpServletRequest request) {
         Event event = repository.getEvent(id, EventStatus.PUBLISHED)
                 .orElseThrow(() -> new NoSuchElementException("Event not found"));
         Integer confirmedRequests = getConfirmedRequests(id);
@@ -97,7 +98,8 @@ public class EventService implements IEventService {
 
     @Override
     public List<EventShortDto> getEvents(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
-                                         LocalDateTime rangeEnd, Boolean onlyAvailable, Sort sort, int from, int size) {
+                                         LocalDateTime rangeEnd, Boolean onlyAvailable, Sort sort, int from, int size,
+                                         HttpServletRequest request) {
         if (text == null) {
             return new ArrayList<>();
         }

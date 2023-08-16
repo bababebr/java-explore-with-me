@@ -12,6 +12,7 @@ import ru.practicum.ewm.service.CategoryService;
 import ru.practicum.ewm.service.CompilationService;
 import ru.practicum.ewm.service.EventService;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -43,13 +44,14 @@ public class PublicController {
                                          @RequestParam(defaultValue = "false") Boolean onlyAvailable,
                                          @RequestParam(defaultValue = "VIEWS") Sort sort,
                                          @RequestParam(defaultValue = "0") @Min(0) int from,
-                                         @RequestParam(defaultValue = "10") @Min(1) int size) {
-        return eventService.getEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
+                                         @RequestParam(defaultValue = "10") @Min(1) int size,
+                                         HttpServletRequest request) {
+        return eventService.getEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size, request);
     }
 
     @GetMapping("/events/{id}")
-    public EventFullDto getEvent(@PathVariable Long id) {
-        return eventService.getEvent(id);
+    public EventFullDto getEvent(@PathVariable Long id, HttpServletRequest request) {
+        return eventService.getEvent(id, request);
     }
 
     @GetMapping("/compilations")
