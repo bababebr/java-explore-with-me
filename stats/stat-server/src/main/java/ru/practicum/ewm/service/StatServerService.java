@@ -32,7 +32,7 @@ public class StatServerService implements IStatServerService {
     public List<HitDtoShort> get(LocalDateTime start, LocalDateTime stop, List<String> uris, boolean unique) {
         List<Hit> hits;
         /*
-        TODO reduce ifelse clause amount by proper querry from db
+        TODO reduce ifelse clause amount by proper query from db
          */
         if (uris == null || uris.isEmpty()) {
             if (unique) {

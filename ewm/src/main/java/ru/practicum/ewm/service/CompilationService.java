@@ -44,7 +44,7 @@ public class CompilationService implements ICompilationService {
             for (Long eventId : compilationDto.getEvents()) {
                 Event event = eventRepository.findById(eventId)
                         .orElseThrow(() -> new NoSuchElementException("Event not found"));
-                returnDto.getEvents().add(EventMapper.eventToShort(event));
+                returnDto.getEvents().add(EventMapper.eventToShort(event, 0));
             }
         }
         returnDto.setPinned(compilationDto.getPinned());
@@ -94,7 +94,7 @@ public class CompilationService implements ICompilationService {
 
             for (Compilation compilation : compilations) {
                 if (compilation.getEvent() != null) {
-                    eventShortDtos.addAll(compilations.stream().map(c -> EventMapper.eventToShort(c.getEvent()))
+                    eventShortDtos.addAll(compilations.stream().map(c -> EventMapper.eventToShort(c.getEvent(), 0))
                             .collect(Collectors.toList()));
                 }
             }
@@ -112,7 +112,7 @@ public class CompilationService implements ICompilationService {
         List<EventShortDto> eventShortDtos = new ArrayList<>();
         if (!compilations.isEmpty()) {
             for (Compilation c : compilations) {
-                eventShortDtos.add(EventMapper.eventToShort(c.getEvent()));
+                eventShortDtos.add(EventMapper.eventToShort(c.getEvent(), 0));
             }
             compilationDto.setId(compilations.get(0).getCompilationId());
             compilationDto.setEvents(eventShortDtos);

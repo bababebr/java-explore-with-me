@@ -43,6 +43,19 @@ public class StatsClient extends BaseClient {
         return get("/stats?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
     }
 
+    public ResponseEntity<Object> get(List<String> uris, boolean unique) {
+
+        HitRequestDTO requestDTO = HitRequestDTO.create(null, null, String.join(", ", uris), unique);
+
+        HashMap<String, Object> parameters = new HashMap<>();
+        parameters.put("start", null);
+        parameters.put("end", null);
+        parameters.put("uris", requestDTO.getUris());
+        parameters.put("unique", requestDTO.isUnique());
+
+        return get("/stats?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
+    }
+
     public ResponseEntity<Object> post(HitDto dto) {
         return post("/hit", dto);
     }

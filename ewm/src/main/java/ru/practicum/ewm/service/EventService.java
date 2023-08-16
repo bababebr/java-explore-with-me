@@ -2,7 +2,11 @@ package ru.practicum.ewm.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import ru.practicum.ewm.Client.StatsClient;
+import ru.practicum.ewm.dto.HitDto;
+import ru.practicum.ewm.dto.HitDtoShort;
 import ru.practicum.ewm.enums.EventStatus;
 import ru.practicum.ewm.enums.ParticipantRequestStatus;
 import ru.practicum.ewm.enums.Sort;
@@ -32,16 +36,18 @@ public class EventService implements IEventService {
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final LocationRepository locationRepository;
+    private final StatsClient statsClient;
 
     @Autowired
     public EventService(EventRepository repository, ParticipantRepository participantRepository,
                         CategoryRepository categoryRepository, UserRepository userRepository,
-                        LocationRepository locationRepository) {
+                        LocationRepository locationRepository, StatsClient statsClient) {
         this.repository = repository;
         this.participantRepository = participantRepository;
         this.categoryRepository = categoryRepository;
         this.userRepository = userRepository;
         this.locationRepository = locationRepository;
+        this.statsClient = statsClient;
     }
 
     @Override
@@ -55,7 +61,11 @@ public class EventService implements IEventService {
         Event event = repository.getEvent(id, EventStatus.PUBLISHED)
                 .orElseThrow(() -> new NoSuchElementException("Event not found"));
         Integer confirmedRequests = getConfirmedRequests(id);
-        return EventMapper.eventToFull(event, confirmedRequests);
+        statsClient.post(HitDto.create(getClass().getName(), request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now()));
+        ResponseEntity<Object> dto = statsClient.get(List.of(request.getRequestURI()), true);
+        System.out.println(dto.getBody());
+
+        return EventMapper.eventToFull(event, confirmedRequests, 0);
     }
 
     @Override
@@ -81,7 +91,7 @@ public class EventService implements IEventService {
         Event savedEvent = repository.save(EventMapper.newEventToEvent(newEventDto, category, user, location));
         Integer confirmedRequests = getConfirmedRequests(savedEvent.getId());
 
-        return EventMapper.eventToFull(savedEvent, confirmedRequests);
+        return EventMapper.eventToFull(savedEvent, confirmedRequests, 0);
     }
 
     @Override
@@ -93,7 +103,7 @@ public class EventService implements IEventService {
         if (event.getInitiator().getId() != userId) {
             throw new IllegalStateException(String.format("USER with ID=%s not an owner", userId));
         }
-        return EventMapper.eventToFull(event, confirmedRequests);
+        return EventMapper.eventToFull(event, confirmedRequests, 0);
     }
 
     @Override
@@ -119,7 +129,7 @@ public class EventService implements IEventService {
         List<Event> events = repository.getEventsTTTT(categories, onlyAvailable, paid, text, rangeStart,
                 rangeEnd, PageRequest.of(from, size));
 
-        return events.stream().map(EventMapper::eventToShort).collect(Collectors.toList());
+        return events.stream().map(e -> EventMapper.eventToShort(e, 0)).collect(Collectors.toList());
     }
 
     @Override
@@ -131,7 +141,7 @@ public class EventService implements IEventService {
         List<EventFullDto> returnList = new ArrayList<>();
         for (Event event : events) {
             Integer confirmedRequests = getConfirmedRequests(event.getId());
-            returnList.add(EventMapper.eventToFull(event, confirmedRequests));
+            returnList.add(EventMapper.eventToFull(event, confirmedRequests, 0));
         }
         return returnList;
     }
@@ -148,7 +158,7 @@ public class EventService implements IEventService {
         }
         Event event = update(oldEvent, dto);
         Integer confirmedRequests = getConfirmedRequests(eventId);
-        return EventMapper.eventToFull(event, confirmedRequests);
+        return EventMapper.eventToFull(event, confirmedRequests, 0);
     }
 
     private List<EventShortDto> setEventShortDto(List<Event> events) {
@@ -159,7 +169,7 @@ public class EventService implements IEventService {
              * TODO view count calc
              */
             int viewCount = 0;
-            EventShortDto shortDto = EventMapper.eventToShort(e);
+            EventShortDto shortDto = EventMapper.eventToShort(e, 0);
             shortDto.setConfirmedRequests(participantCount);
             returnList.add(shortDto);
         }
@@ -172,7 +182,7 @@ public class EventService implements IEventService {
         validateEventAdminUpdate(event, dto);
         update(event, dto);
         Integer confirmedRequests = getConfirmedRequests(eventId);
-        return EventMapper.eventToFull(event, confirmedRequests);
+        return EventMapper.eventToFull(event, confirmedRequests, 0);
     }
 
     private Event update(Event event, EventUpdateDto dto) {
