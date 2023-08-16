@@ -70,7 +70,6 @@ public class RequestService implements IRequestService {
     public List<ParticipantRequestDto> confirmRequest(Long userId, Long eventId, ParticipantRequestUpdateDto requestUpdateDto) {
         List<ParticipantRequest> requests = participantRepository.findAllByUserIdAndEventIdAndIdIn(eventId,
                 requestUpdateDto.getRequestIds());
-        System.out.println(requests.size());
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NoSuchElementException("Event not found"));
 
         ParticipantRequestStatus newStatus = requestUpdateDto.getStatus();
@@ -82,6 +81,9 @@ public class RequestService implements IRequestService {
             System.out.println("confirmed " + confirmedEventRequests + " limit " + event.getParticipantLimit());
             if(confirmedEventRequests >= event.getParticipantLimit()) {
                 throw new IllegalStateException("Participant limit has been reached.");
+            }
+            if(request.getStatus().equals(ParticipantRequestStatus.CONFIRMED) && requestUpdateDto.getStatus().equals(ParticipantRequestStatus.REJECTED)){
+                throw new IllegalStateException("Can't cancel confirmed request");
             }
             request.setStatus(newStatus);
             ParticipantRequest r = participantRepository.save(request);

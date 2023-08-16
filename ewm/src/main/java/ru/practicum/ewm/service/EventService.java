@@ -212,6 +212,8 @@ public class EventService implements IEventService {
                 case SEND_TO_REVIEW:
                     event.setState(EventStatus.PENDING);
                     break;
+                case CANCEL_REVIEW:
+                    event.setState(EventStatus.CANCELED);
             }
         }
         return repository.save(event);
