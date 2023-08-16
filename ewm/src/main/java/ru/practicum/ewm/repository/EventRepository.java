@@ -17,11 +17,13 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     List<Event> findAllByInitiatorId(Long id, Pageable pageable);
 
-    @Query("SELECT e FROM Event as e WHERE (e.category.id in ?1 or ?1 is null) " +
+    Optional<Event> findByInitiatorIdAndId(Long userId, Long eventId);
+
+    @Query("SELECT e FROM Event as e WHERE (e.category.id in ?1 or (?1 is null OR 0 IN ?1)) " +
             "AND (e.participantLimit < (SELECT COUNT(pr.id) FROM ParticipantRequest as pr WHERE pr.eventId = e.id AND pr.status <> 'REJECTED') or ?2 = false) " +
             "AND (e.paid = ?3 or ?3 is null) " +
-            "AND ((UPPER(e.annotation) like UPPER(concat('%',?4,'%'))) OR ?4 = '0') " +
-            "AND ((UPPER(e.description) like UPPER(concat('%',?4,'%'))) OR ?4 = '0') " +
+            "AND (((UPPER(e.annotation) like UPPER(concat('%',?4,'%'))) OR ?4 = '0') " +
+            "OR ((UPPER(e.description) like UPPER(concat('%',?4,'%'))) OR ?4 = '0')) " +
             "AND ((e.eventDate BETWEEN ?5 AND ?6) OR length(?5) is null AND e.eventDate > current_timestamp)")
     List<Event> getEventsTTTT(List<Long> categories, Boolean onlyAvailable, Boolean paid, String text,
                               LocalDateTime rangeStart, LocalDateTime rangeEnd, Pageable pageable);

@@ -63,13 +63,13 @@ public class PrivateController {
         return requestService.getUserRequest(userId);
     }
     @GetMapping("/{userId}/events/{eventId}/requests")
-    public ParticipantRequestDto getEventRequests(@PathVariable Long userId, @PathVariable Long eventId) {
-        return requestService.getRequest(userId, eventId);
+    public List<ParticipantRequestDto> getEventRequests(@PathVariable Long userId, @PathVariable Long eventId) {
+        return requestService.getUserEventParticipationRequest(userId, eventId);
     }
 
     @PatchMapping("/{userId}/events/{eventId}/requests")
     public List<ParticipantRequestDto> updateEventRequest(@PathVariable Long userId, @PathVariable Long eventId,
-                                                    @Valid @RequestBody ParticipantRequestUpdateDto requestUpdateDto) {
+                                                          @Valid @RequestBody ParticipantRequestUpdateDto requestUpdateDto) {
         return requestService.confirmRequest(userId, eventId, requestUpdateDto);
     }
 

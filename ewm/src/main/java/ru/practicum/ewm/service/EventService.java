@@ -85,20 +85,28 @@ public class EventService implements IEventService {
 
     @Override
     public EventFullDto getEventFullInfo(Long userId, Long eventId) {
-        return null;
+        int confirmedRequests = participantRepository.countAllByEventIdAndStatusIn(eventId,
+                List.of(ParticipantRequestStatus.CONFIRMED));
+        Event event = repository.findByInitiatorIdAndId(userId, eventId).orElseThrow(
+                () -> new NoSuchElementException("Users not found"));
+        if (event.getInitiator().getId() != userId) {
+            throw new IllegalStateException(String.format("USER with ID=%s not an owner", userId));
+        }
+        return EventMapper.eventToFull(event, confirmedRequests);
     }
 
     @Override
     public List<EventShortDto> getEvents(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
                                          LocalDateTime rangeEnd, Boolean onlyAvailable, Sort sort, int from, int size) {
-        System.out.println(paid);
         if (text == null) {
             return new ArrayList<>();
         }
         if (rangeStart != null && rangeEnd.isBefore(rangeStart)) {
             throw new ValidationException("End date can't be before start");
         }
-
+        /**
+         * TODO
+         */
         String sortType;
         if (sort.equals(Sort.VIEWS)) {
             sortType = "e.views";
@@ -106,8 +114,6 @@ public class EventService implements IEventService {
             sortType = "e.event_date";
         }
 
-/*        List<Event> events = repository.getEvents(text, categories, paid, onlyAvailable, rangeStart,
-                rangeEnd, sortType, PageRequest.of(from, size));*/
         List<Event> events = repository.getEventsTTTT(categories, onlyAvailable, paid, text, rangeStart,
                 rangeEnd, PageRequest.of(from, size));
 
@@ -119,6 +125,7 @@ public class EventService implements IEventService {
                                             LocalDateTime rangeStart, LocalDateTime rangeEnd, int from, int size) {
         List<Event> events = repository.getUserEvents(usersId, states, categoriesId, rangeStart, rangeEnd,
                 PageRequest.of(from, size));
+        System.out.println(events.size());
         List<EventFullDto> returnList = new ArrayList<>();
         for (Event event : events) {
             Integer confirmedRequests = getConfirmedRequests(event.getId());
@@ -130,7 +137,7 @@ public class EventService implements IEventService {
     @Override
     public EventFullDto updateEvent(Long userId, Long eventId, EventUpdateDto dto) {
         Event oldEvent = repository.findById(eventId).orElseThrow(() -> new NoSuchElementException());
-        if(oldEvent.getState().equals(EventStatus.PUBLISHED)) {
+        if (oldEvent.getState().equals(EventStatus.PUBLISHED)) {
             throw new IllegalStateException("Can't update cancelled or published event.");
         }
         validateEventAdminUpdate(oldEvent, dto);
@@ -220,7 +227,7 @@ public class EventService implements IEventService {
         if (event.getState().equals(EventStatus.PUBLISHED) && dto.getStateAction().equals(StateAction.PUBLISH_EVENT)) {
             throw new IllegalStateException("Event already published.");
         }
-        if(event.getState().equals(EventStatus.CANCELED) && dto.getStateAction().equals(StateAction.PUBLISH_EVENT)) {
+        if (event.getState().equals(EventStatus.CANCELED) && dto.getStateAction().equals(StateAction.PUBLISH_EVENT)) {
             throw new IllegalStateException("Can't publish cancelled event.");
         }
     }

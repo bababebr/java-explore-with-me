@@ -1,6 +1,7 @@
 package ru.practicum.ewm.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.enums.EventStatus;
 import ru.practicum.ewm.enums.ParticipantRequestStatus;
@@ -50,9 +51,11 @@ public class RequestService implements IRequestService {
     }
 
     @Override
-    public ParticipantRequestDto getRequest(Long userId, Long evenId) {
-        return ParticipantRequestMapper.requestToDto(participantRepository.findAllByUserIdAndId(userId, evenId)
-                .orElseThrow(() -> new NoSuchElementException("Request not found")));
+    public List<ParticipantRequestDto> getUserEventParticipationRequest(Long userId, Long evenId) {
+        List<Event> events = eventRepository.findAllByInitiatorId(userId, Pageable.unpaged());
+        List<Long> eventsIds = events.stream().map((e) -> e.getId()).collect(Collectors.toList());
+        List<ParticipantRequest> requests = participantRepository.findAllByEventIdIn(eventsIds);
+        return requests.stream().map(ParticipantRequestMapper::requestToDto).collect(Collectors.toList());
     }
 
     @Override
@@ -65,11 +68,21 @@ public class RequestService implements IRequestService {
 
     @Override
     public List<ParticipantRequestDto> confirmRequest(Long userId, Long eventId, ParticipantRequestUpdateDto requestUpdateDto) {
-        List<ParticipantRequest> requests = participantRepository.findAllByUserIdAndEventIdAndIdIn(userId, eventId,
+        List<ParticipantRequest> requests = participantRepository.findAllByUserIdAndEventIdAndIdIn(eventId,
                 requestUpdateDto.getRequestIds());
+        System.out.println(requests.size());
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new NoSuchElementException("Event not found"));
+
         ParticipantRequestStatus newStatus = requestUpdateDto.getStatus();
         List<ParticipantRequestDto> requestDtos = new ArrayList<>();
+
         for (ParticipantRequest request : requests) {
+            int confirmedEventRequests = participantRepository.countAllByEventIdAndStatusIn(eventId,
+                    List.of(ParticipantRequestStatus.CONFIRMED));
+            System.out.println("confirmed " + confirmedEventRequests + " limit " + event.getParticipantLimit());
+            if(confirmedEventRequests >= event.getParticipantLimit()) {
+                throw new IllegalStateException("Participant limit has been reached.");
+            }
             request.setStatus(newStatus);
             ParticipantRequest r = participantRepository.save(request);
             requestDtos.add(ParticipantRequestMapper.requestToDto(r));
@@ -92,7 +105,7 @@ public class RequestService implements IRequestService {
     public ParticipantRequestDto cancelRequest(Long userId, Long requestId) {
         ParticipantRequest participantRequest = participantRepository.findAllByUserIdAndId(userId, requestId)
                 .orElseThrow(() -> new NoSuchElementException("User request not found."));
-        participantRequest.setStatus(ParticipantRequestStatus.REJECTED);
+        participantRequest.setStatus(ParticipantRequestStatus.CANCELED);
 
         return ParticipantRequestMapper.requestToDto(participantRepository.save(participantRequest));
     }
@@ -120,10 +133,7 @@ public class RequestService implements IRequestService {
          * Is participant limit reached
          */
         Integer part = participantRepository.countAllByEventIdAndStatusIn(eventId,
-                List.of(ParticipantRequestStatus.CONFIRMED,
-                        ParticipantRequestStatus.PENDING));
-        System.out.println(part);
-        System.out.println(event.getParticipantLimit());
+                List.of(ParticipantRequestStatus.CONFIRMED));
         if (part >= event.getParticipantLimit() && event.getParticipantLimit() != 0) {
             throw new IllegalStateException("Participant limit has been reached.");
         }
