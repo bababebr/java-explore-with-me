@@ -28,6 +28,7 @@ public class StatsClient extends BaseClient {
                         .requestFactory(HttpComponentsClientHttpRequestFactory::new)
                         .build()
         );
+
     }
 
     public ResponseEntity<Object> get(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
