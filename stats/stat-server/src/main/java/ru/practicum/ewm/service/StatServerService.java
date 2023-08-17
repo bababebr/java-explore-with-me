@@ -54,7 +54,6 @@ public class StatServerService implements IStatServerService {
     @Override
     public Integer getHits(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
         if (unique) {
-            System.out.println("unique");
             return repository.countUniqueHits(start, end, uris);
         } else {
             return repository.countHits(start, end, uris);

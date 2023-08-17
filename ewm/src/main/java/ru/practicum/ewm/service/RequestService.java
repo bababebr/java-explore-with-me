@@ -56,7 +56,6 @@ public class RequestService implements IRequestService {
         for (ParticipantRequest request : requests) {
             int confirmedEventRequests = participantRepository.countAllByEventIdAndStatusIn(eventId,
                     List.of(ParticipantRequestStatus.CONFIRMED));
-            System.out.println("confirmed " + confirmedEventRequests + " limit " + event.getParticipantLimit());
             if (confirmedEventRequests >= event.getParticipantLimit()) {
                 throw new IllegalStateException("Participant limit has been reached.");
             }

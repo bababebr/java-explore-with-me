@@ -117,7 +117,6 @@ public class CompilationService implements ICompilationService {
         List<Compilation> compilations = repository.getCompilationsById(id);
         CompilationDto compilationDto = CompilationDto.create();
         List<EventShortDto> eventShortDtos = new ArrayList<>();
-        System.out.println(compilations.get(0));
         if (!compilations.isEmpty()) {
             for (Compilation c : compilations) {
                 try {
