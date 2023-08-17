@@ -14,7 +14,8 @@ import java.time.LocalDateTime;
 public class EventMapper {
 
     public static EventShortDto eventToShort(Event event, int views) {
-        return EventShortDto.create(event.getAnnotation(), CategoryMapper.categoryToDto(event.getCategory()),
+        return EventShortDto.create(event.getAnnotation(),
+                CategoryMapper.categoryToDto(event.getCategory()),
                 0,
                 event.getEventDate(),
                 event.getId(),

@@ -7,6 +7,7 @@ import ru.practicum.ewm.dto.HitDto;
 import ru.practicum.ewm.dto.HitDtoShort;
 import ru.practicum.ewm.service.IStatServerService;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -32,5 +33,13 @@ public class HitController {
                                  @RequestParam(required = false) List<String> uris,
                                  @RequestParam(defaultValue = "false") boolean unique) {
         return service.get(start, end, uris, unique);
+    }
+
+    @GetMapping("/hits")
+    public Integer getHits(@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
+                           @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
+                           @RequestParam(required = false) List<String> uris,
+                           @RequestParam(defaultValue = "false") boolean unique) {
+        return service.getHits(start, end, uris, unique);
     }
 }

@@ -11,7 +11,7 @@ public class ParticipantRequestMapper {
     }
 
     public static ParticipantRequest dtoToRequest(ParticipantRequestDto dto) {
-        return ParticipantRequest.create(0L, dto.getCreated(),dto.getRequester(), dto.getEvent(), dto.getStatus());
+        return ParticipantRequest.create(0L, dto.getCreated(), dto.getRequester(), dto.getEvent(), dto.getStatus());
     }
 
 }

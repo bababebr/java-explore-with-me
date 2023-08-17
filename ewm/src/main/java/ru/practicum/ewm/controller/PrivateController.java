@@ -29,7 +29,7 @@ public class PrivateController {
     }
 
     /**
-    Private: Event
+     * Private: Event
      */
     @GetMapping("/{userId}/events")
     public List<EventShortDto> getUserEvents(@PathVariable Long userId, @RequestParam(defaultValue = "0") int from,
@@ -62,6 +62,7 @@ public class PrivateController {
     public List<ParticipantRequestDto> getUserRequests(@PathVariable Long userId) {
         return requestService.getUserRequest(userId);
     }
+
     @GetMapping("/{userId}/events/{eventId}/requests")
     public List<ParticipantRequestDto> getEventRequests(@PathVariable Long userId, @PathVariable Long eventId) {
         return requestService.getUserEventParticipationRequest(userId, eventId);

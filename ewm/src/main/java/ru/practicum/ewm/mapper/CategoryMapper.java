@@ -10,10 +10,6 @@ public class CategoryMapper {
         return CategoryDto.create(category.getId(), category.getName());
     }
 
-    public static Category dtoToCategory(CategoryDto dto) {
-        return Category.create(0L, dto.getName());
-    }
-
     public static Category newCategoryToCategory(NewCategoryDto newDto) {
         return Category.create(0L, newDto.getName());
     }

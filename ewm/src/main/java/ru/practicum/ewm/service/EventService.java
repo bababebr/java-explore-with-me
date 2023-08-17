@@ -6,7 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.Client.StatsClient;
 import ru.practicum.ewm.dto.HitDto;
-import ru.practicum.ewm.dto.HitDtoShort;
 import ru.practicum.ewm.enums.EventStatus;
 import ru.practicum.ewm.enums.ParticipantRequestStatus;
 import ru.practicum.ewm.enums.Sort;
@@ -61,11 +60,9 @@ public class EventService implements IEventService {
         Event event = repository.getEvent(id, EventStatus.PUBLISHED)
                 .orElseThrow(() -> new NoSuchElementException("Event not found"));
         Integer confirmedRequests = getConfirmedRequests(id);
-        statsClient.post(HitDto.create(getClass().getName(), request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now()));
-        ResponseEntity<Object> dto = statsClient.get(List.of(request.getRequestURI()), true);
-        System.out.println(dto.getBody());
+        int views = updateHits(request);
 
-        return EventMapper.eventToFull(event, confirmedRequests, 0);
+        return EventMapper.eventToFull(event, confirmedRequests, views);
     }
 
     @Override
@@ -110,6 +107,7 @@ public class EventService implements IEventService {
     public List<EventShortDto> getEvents(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
                                          LocalDateTime rangeEnd, Boolean onlyAvailable, Sort sort, int from, int size,
                                          HttpServletRequest request) {
+        int views = updateHits(request);
         if (text == null) {
             return new ArrayList<>();
         }
@@ -126,10 +124,10 @@ public class EventService implements IEventService {
             sortType = "e.event_date";
         }
 
-        List<Event> events = repository.getEventsTTTT(categories, onlyAvailable, paid, text, rangeStart,
-                rangeEnd, PageRequest.of(from, size));
+        List<Event> events = repository.getEvents(categories, onlyAvailable, paid, text, rangeStart,
+                rangeEnd, sortType, PageRequest.of(from, size));
 
-        return events.stream().map(e -> EventMapper.eventToShort(e, 0)).collect(Collectors.toList());
+        return events.stream().map(e -> EventMapper.eventToShort(e, views)).collect(Collectors.toList());
     }
 
     @Override
@@ -137,7 +135,6 @@ public class EventService implements IEventService {
                                             LocalDateTime rangeStart, LocalDateTime rangeEnd, int from, int size) {
         List<Event> events = repository.getUserEvents(usersId, states, categoriesId, rangeStart, rangeEnd,
                 PageRequest.of(from, size));
-        System.out.println(events.size());
         List<EventFullDto> returnList = new ArrayList<>();
         for (Event event : events) {
             Integer confirmedRequests = getConfirmedRequests(event.getId());
@@ -251,4 +248,10 @@ public class EventService implements IEventService {
                 List.of(ParticipantRequestStatus.CONFIRMED, ParticipantRequestStatus.PENDING));
     }
 
+    private int updateHits(HttpServletRequest request) {
+        statsClient.post(HitDto.create(getClass().getName(), request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now()));
+        ResponseEntity<Object> dto = statsClient.getHits(List.of(request.getRequestURI()), true);
+        int views = Integer.valueOf(dto.getBody().toString());
+        return views;
+    }
 }

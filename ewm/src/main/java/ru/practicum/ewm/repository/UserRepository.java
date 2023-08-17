@@ -10,8 +10,6 @@ import java.util.List;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-
     @Query("SELECT u FROM User  as u WHERE u.id IN ?1")
     List<User> findAllByIds(List<Long> ids, Pageable pageable);
-
 }

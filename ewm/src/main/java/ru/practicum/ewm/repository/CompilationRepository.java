@@ -10,9 +10,6 @@ import java.util.Optional;
 
 public interface CompilationRepository extends JpaRepository<Compilation, Long> {
 
-
-    List<Compilation> findAllByTitleAndPinned(String title, Boolean pinned);
-
     Integer deleteAllByCompilationId(Long id);
 
     @Query("SELECT MAX(c.compilationId) FROM Compilation as c")

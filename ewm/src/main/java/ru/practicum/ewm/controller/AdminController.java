@@ -116,4 +116,10 @@ public class AdminController {
                                      @PathVariable Long id) {
         return compilationService.update(dto, id);
     }
+
+    @DeleteMapping("/compilations/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    void deleteCompilation(@PathVariable Long id) {
+        compilationService.delete(id);
+    }
 }

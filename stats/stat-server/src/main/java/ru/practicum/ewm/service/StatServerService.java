@@ -52,6 +52,16 @@ public class StatServerService implements IStatServerService {
         return resultDto;
     }
 
+    @Override
+    public Integer getHits(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
+        if(unique) {
+            System.out.println("unique");
+            return repository.countUniqueHits(start, end, uris);
+        } else {
+            return repository.countHits(start, end, uris);
+        }
+    }
+
     private List<HitDtoShort> setHitForSingleUri(List<HitDtoShort> dtoShort, List<Hit> hits) {
         for (HitDtoShort dto : dtoShort) {
             long count = hits.stream().filter(h -> h.getUri().equals(dto.getUri())).count();

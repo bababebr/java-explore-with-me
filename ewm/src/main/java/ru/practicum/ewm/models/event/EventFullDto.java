@@ -38,7 +38,7 @@ public class EventFullDto {
     @NotNull
     Boolean paid;
     Integer participantLimit = 0;
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss[.S]")
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss[.S]")
     LocalDateTime publishedOn = LocalDateTime.now();
     Boolean requestModeration = true;
     EventStatus state = EventStatus.PENDING;

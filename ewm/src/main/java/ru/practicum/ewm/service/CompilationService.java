@@ -1,5 +1,6 @@
 package ru.practicum.ewm.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,8 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
+@Transactional
 public class CompilationService implements ICompilationService {
     private final CompilationRepository repository;
     private final EventRepository eventRepository;
@@ -32,11 +35,15 @@ public class CompilationService implements ICompilationService {
         this.eventRepository = eventRepository;
     }
 
+    @Transactional
     @Override
     public CompilationDto add(NewCompilationDto compilationDto) {
         Long nextCompilationId = repository.getNextCompilationId().orElse(0L);
         nextCompilationId++;
         CompilationDto returnDto = CompilationDto.create();
+        returnDto.setPinned(compilationDto.getPinned());
+        returnDto.setTitle(compilationDto.getTitle());
+        returnDto.setId(nextCompilationId);
         if (compilationDto.getEvents() == null || compilationDto.getEvents().isEmpty()) {
             repository.save(CompilationMapper.newCompilationToCompilation(null, compilationDto.getTitle(),
                     compilationDto.getPinned(), nextCompilationId));
@@ -45,14 +52,12 @@ public class CompilationService implements ICompilationService {
                 Event event = eventRepository.findById(eventId)
                         .orElseThrow(() -> new NoSuchElementException("Event not found"));
                 returnDto.getEvents().add(EventMapper.eventToShort(event, 0));
+                repository.save(CompilationMapper.dtoToCompilation(returnDto, event));
             }
         }
-        returnDto.setPinned(compilationDto.getPinned());
-        returnDto.setTitle(compilationDto.getTitle());
-        returnDto.setId(nextCompilationId);
         return returnDto;
     }
-
+    @Transactional
     @Override
     public void delete(Long compilationId) {
         repository.deleteAllByCompilationId(compilationId);
@@ -73,7 +78,7 @@ public class CompilationService implements ICompilationService {
             compilationDto.setPinned(prevPinned);
         }
         if (compilationDto.getTitle() != null) {
-            if(compilationDto.getTitle().length() > 50) {
+            if (compilationDto.getTitle().length() > 50) {
                 throw new ValidationException("Title length more than 50.");
             }
             compilationDto.setTitle(prevTitle);
@@ -81,6 +86,7 @@ public class CompilationService implements ICompilationService {
         return add(compilationDto);
     }
 
+    @Transactional(readOnly = true)
     public List<CompilationDto> getCompilations(int from, int size) {
         List<Long> ids = repository.getCompilationsIds(PageRequest.of(from, size));
         List<CompilationDto> compilationDtos = new ArrayList<>();
@@ -105,14 +111,20 @@ public class CompilationService implements ICompilationService {
         return compilationDtos;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public CompilationDto getCompilation(Long id) {
         List<Compilation> compilations = repository.getCompilationsById(id);
         CompilationDto compilationDto = CompilationDto.create();
         List<EventShortDto> eventShortDtos = new ArrayList<>();
+        System.out.println(compilations.get(0));
         if (!compilations.isEmpty()) {
             for (Compilation c : compilations) {
-                eventShortDtos.add(EventMapper.eventToShort(c.getEvent(), 0));
+                try {
+                    eventShortDtos.add(EventMapper.eventToShort(c.getEvent(), 0));
+                } catch (NullPointerException e) {
+                    log.info(String.format("Compilation %s has no events", c.getId()));
+                }
             }
             compilationDto.setId(compilations.get(0).getCompilationId());
             compilationDto.setEvents(eventShortDtos);

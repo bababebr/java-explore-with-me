@@ -39,8 +39,8 @@ public class StatsClient extends BaseClient {
         parameters.put("end", requestDTO.getEnd().format(DATE_TIME_FORMATTER));
         parameters.put("uris", requestDTO.getUris());
         parameters.put("unique", requestDTO.isUnique());
-
-        return get("/stats?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
+        ResponseEntity<Object> objectResponseEntity = get("/stats?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
+        return objectResponseEntity;
     }
 
     public ResponseEntity<Object> get(List<String> uris, boolean unique) {
@@ -52,8 +52,21 @@ public class StatsClient extends BaseClient {
         parameters.put("end", null);
         parameters.put("uris", requestDTO.getUris());
         parameters.put("unique", requestDTO.isUnique());
+        ResponseEntity<Object> objectResponseEntity = get("/stats?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
+        return objectResponseEntity;
+    }
 
-        return get("/stats?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
+    public ResponseEntity<Object> getHits(List<String> uris, boolean unique) {
+
+        HitRequestDTO requestDTO = HitRequestDTO.create(null, null, String.join(", ", uris), unique);
+
+        HashMap<String, Object> parameters = new HashMap<>();
+        parameters.put("start", null);
+        parameters.put("end", null);
+        parameters.put("uris", requestDTO.getUris());
+        parameters.put("unique", requestDTO.isUnique());
+        ResponseEntity<Object> objectResponseEntity = get("/hits?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
+        return objectResponseEntity;
     }
 
     public ResponseEntity<Object> post(HitDto dto) {
