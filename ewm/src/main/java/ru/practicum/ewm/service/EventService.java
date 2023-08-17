@@ -68,7 +68,7 @@ public class EventService implements IEventService {
 
     @Override
     public EventFullDto addEvent(Long userInd, NewEventDto newEventDto) {
-        User user = userRepository.findById(userInd).orElseThrow(() -> new NoSuchElementException());
+        User user = userRepository.findById(userInd).orElseThrow(NoSuchElementException::new);
         Duration duration = Duration.between(LocalDateTime.now(), newEventDto.getEventDate());
         if (duration.toHours() < 2) {
             throw new ValidationException("Event date is invalid.");
@@ -115,9 +115,6 @@ public class EventService implements IEventService {
         if (rangeStart != null && rangeEnd.isBefore(rangeStart)) {
             throw new ValidationException("End date can't be before start");
         }
-        /**
-         * TODO
-         */
         String sortType;
         if (sort.equals(Sort.VIEWS)) {
             sortType = "e.views";
