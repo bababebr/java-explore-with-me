@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 @Service
 public class UserService implements IUserService {
 
-    private UserRepository repository;
+    private final UserRepository repository;
 
     @Autowired
     public UserService(UserRepository repository) {

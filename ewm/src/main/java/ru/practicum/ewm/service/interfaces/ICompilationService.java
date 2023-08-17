@@ -3,8 +3,6 @@ package ru.practicum.ewm.service.interfaces;
 import ru.practicum.ewm.models.compilations.CompilationDto;
 import ru.practicum.ewm.models.compilations.NewCompilationDto;
 
-import java.util.List;
-
 public interface ICompilationService {
 
     CompilationDto add(NewCompilationDto compilation);

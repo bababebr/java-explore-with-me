@@ -24,8 +24,7 @@ public class StatServerService implements IStatServerService {
 
     @Override
     public HitDto add(HitDto dto) {
-        HitDto result = HitMapper.hitToDto(repository.save(HitMapper.dtoToHit(dto)));
-        return result;
+        return HitMapper.hitToDto(repository.save(HitMapper.dtoToHit(dto)));
     }
 
     @Override
@@ -54,7 +53,7 @@ public class StatServerService implements IStatServerService {
 
     @Override
     public Integer getHits(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
-        if(unique) {
+        if (unique) {
             System.out.println("unique");
             return repository.countUniqueHits(start, end, uris);
         } else {
@@ -69,8 +68,7 @@ public class StatServerService implements IStatServerService {
         }
         dtoShort.sort((o1, o2) -> (o1.getHits() > o2.getHits()) ? -1 :
                 (o1.getHits() < o2.getHits()) ? 1 : 0);
+        return dtoShort.stream().distinct().collect(Collectors.toList());
 
-        List<HitDtoShort> result = dtoShort.stream().distinct().collect(Collectors.toList());
-        return result;
     }
 }

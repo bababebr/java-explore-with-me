@@ -1,5 +1,7 @@
 package ru.practicum.ewm.controller;
 
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -24,6 +26,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/admin")
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AdminController {
 
     IUserService userService;

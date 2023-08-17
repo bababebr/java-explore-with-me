@@ -7,7 +7,6 @@ import ru.practicum.ewm.dto.HitDto;
 import ru.practicum.ewm.dto.HitDtoShort;
 import ru.practicum.ewm.service.IStatServerService;
 
-import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.List;
 

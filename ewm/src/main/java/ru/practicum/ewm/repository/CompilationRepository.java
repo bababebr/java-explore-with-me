@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface CompilationRepository extends JpaRepository<Compilation, Long> {
 
-    Integer deleteAllByCompilationId(Long id);
+    void deleteAllByCompilationId(Long id);
 
     @Query("SELECT MAX(c.compilationId) FROM Compilation as c")
     Optional<Long> getNextCompilationId();

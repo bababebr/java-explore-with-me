@@ -7,14 +7,11 @@ import ru.practicum.ewm.enums.EventStatus;
 import ru.practicum.ewm.enums.ParticipantRequestStatus;
 import ru.practicum.ewm.mapper.ParticipantRequestMapper;
 import ru.practicum.ewm.models.event.Event;
-import ru.practicum.ewm.models.request.eventRequest.RequestDto;
-import ru.practicum.ewm.models.request.eventRequest.RequestUpdateDto;
 import ru.practicum.ewm.models.request.participantRequest.ParticipantRequest;
 import ru.practicum.ewm.models.request.participantRequest.ParticipantRequestDto;
 import ru.practicum.ewm.models.request.participantRequest.ParticipantRequestUpdateDto;
 import ru.practicum.ewm.repository.EventRepository;
 import ru.practicum.ewm.repository.ParticipantRepository;
-import ru.practicum.ewm.repository.RequestRepository;
 import ru.practicum.ewm.repository.UserRepository;
 import ru.practicum.ewm.service.interfaces.IRequestService;
 
@@ -22,32 +19,21 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
 public class RequestService implements IRequestService {
-    private final RequestRepository eventRequestRepository;
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final ParticipantRepository participantRepository;
 
     @Autowired
-    public RequestService(RequestRepository eventRequestRepository, EventRepository eventRepository,
-                          UserRepository userRepository, ParticipantRepository participantRepository) {
-        this.eventRequestRepository = eventRequestRepository;
+    public RequestService(EventRepository eventRepository, UserRepository userRepository,
+                          ParticipantRepository participantRepository) {
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
         this.participantRepository = participantRepository;
-    }
-
-    @Override
-    public RequestDto getEventRequest(Long userId, Long eventId) {
-        return null;
-    }
-
-    @Override
-    public RequestDto updateEventRequest(Long userId, Long eventId, RequestUpdateDto dto) {
-        return null;
     }
 
     @Override
@@ -56,14 +42,6 @@ public class RequestService implements IRequestService {
         List<Long> eventsIds = events.stream().map((e) -> e.getId()).collect(Collectors.toList());
         List<ParticipantRequest> requests = participantRepository.findAllByEventIdIn(eventsIds);
         return requests.stream().map(ParticipantRequestMapper::requestToDto).collect(Collectors.toList());
-    }
-
-    @Override
-    public ParticipantRequestDto updateRequest(Long userId, Long eventId, ParticipantRequestDto dto) {
-        ParticipantRequest request = participantRepository.findByUserIdAndEventId(userId, eventId)
-                .orElseThrow(() -> new NoSuchElementException("Request not found"));
-        request.setStatus(dto.getStatus());
-        return ParticipantRequestMapper.requestToDto(participantRepository.save(request));
     }
 
     @Override
@@ -142,7 +120,7 @@ public class RequestService implements IRequestService {
         /**
          * Is User own Event
          */
-        if (event.getInitiator().getId() == userId) {
+        if (Objects.equals(event.getInitiator().getId(), userId)) {
             throw new IllegalStateException("Cannot create request for the own event.");
         }
         /**
@@ -150,7 +128,7 @@ public class RequestService implements IRequestService {
          */
         ParticipantRequestDto dto = ParticipantRequestDto
                 .create(LocalDateTime.now(), 0L, eventId, userId, ParticipantRequestStatus.CONFIRMED);
-        if (event.getRequestModeration() == true && event.getParticipantLimit() != 0) {
+        if (event.getRequestModeration() && event.getParticipantLimit() != 0) {
             dto.setStatus(ParticipantRequestStatus.PENDING);
         }
         ParticipantRequest request;

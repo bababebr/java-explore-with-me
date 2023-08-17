@@ -1,4 +1,4 @@
-package ru.practicum.ewm.Client;
+package ru.practicum.ewm.client;
 
 import org.springframework.http.*;
 import org.springframework.lang.Nullable;

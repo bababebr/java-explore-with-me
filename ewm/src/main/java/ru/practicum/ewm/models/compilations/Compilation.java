@@ -9,7 +9,7 @@ import javax.persistence.*;
 @Table(name = "compilation")
 @Getter
 @Setter
-@RequiredArgsConstructor(staticName = "create")
+@NoArgsConstructor
 @AllArgsConstructor(staticName = "create")
 public class Compilation {
     @Id

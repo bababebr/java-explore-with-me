@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import ru.practicum.ewm.Client.StatsClient;
+import ru.practicum.ewm.client.StatsClient;
 import ru.practicum.ewm.dto.HitDto;
 import ru.practicum.ewm.enums.EventStatus;
 import ru.practicum.ewm.enums.ParticipantRequestStatus;
@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -97,7 +98,7 @@ public class EventService implements IEventService {
                 List.of(ParticipantRequestStatus.CONFIRMED));
         Event event = repository.findByInitiatorIdAndId(userId, eventId).orElseThrow(
                 () -> new NoSuchElementException("Users not found"));
-        if (event.getInitiator().getId() != userId) {
+        if (!Objects.equals(event.getInitiator().getId(), userId)) {
             throw new IllegalStateException(String.format("USER with ID=%s not an owner", userId));
         }
         return EventMapper.eventToFull(event, confirmedRequests, 0);
@@ -150,7 +151,7 @@ public class EventService implements IEventService {
             throw new IllegalStateException("Can't update cancelled or published event.");
         }
         validateEventAdminUpdate(oldEvent, dto);
-        if (!(oldEvent.getInitiator().getId() == userId)) {
+        if (!(Objects.equals(oldEvent.getInitiator().getId(), userId))) {
             throw new IllegalStateException();
         }
         Event event = update(oldEvent, dto);
@@ -216,13 +217,12 @@ public class EventService implements IEventService {
                     event.setPublishedDate(LocalDateTime.now());
                     break;
                 case REJECT_EVENT:
+                case CANCEL_REVIEW:
                     event.setState(EventStatus.CANCELED);
                     break;
                 case SEND_TO_REVIEW:
                     event.setState(EventStatus.PENDING);
                     break;
-                case CANCEL_REVIEW:
-                    event.setState(EventStatus.CANCELED);
             }
         }
         return repository.save(event);
@@ -250,8 +250,11 @@ public class EventService implements IEventService {
 
     private int updateHits(HttpServletRequest request) {
         statsClient.post(HitDto.create(getClass().getName(), request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now()));
-        ResponseEntity<Object> dto = statsClient.getHits(List.of(request.getRequestURI()), true);
-        int views = Integer.valueOf(dto.getBody().toString());
-        return views;
+        ResponseEntity<Object> dto = statsClient.getHitsCount(List.of(request.getRequestURI()), true);
+        try {
+            return Integer.parseInt(dto.getBody().toString());
+        } catch (NullPointerException e) {
+            return 0;
+        }
     }
 }
