@@ -29,23 +29,12 @@ public class StatServerService implements IStatServerService {
 
     @Override
     public List<HitDtoShort> get(LocalDateTime start, LocalDateTime stop, List<String> uris, boolean unique) {
-        List<Hit> hits;
+        List<Hit> hits= repository.findUniqueHits(start, stop, uris, unique);
         /*
         TODO reduce ifelse clause amount by proper query from db
          */
-        if (uris == null || uris.isEmpty()) {
-            if (unique) {
-                hits = repository.getUniqueIpAndUri(start, stop);
-            } else {
-                hits = repository.findAllByTimestampAfterAndTimestampBefore(start, stop);
-            }
-        } else {
-            if (unique) {
-                hits = repository.getUniqueIpAndUriWithUris(start, stop);
-            } else {
-                hits = repository.findAllByTimestampAfterAndTimestampBeforeWithUri(start, stop, uris);
-            }
-        }
+
+
         List<HitDtoShort> resultDto = hits.stream().map(HitMapper::hitToDtoShort).collect(Collectors.toList());
         resultDto = setHitForSingleUri(resultDto, hits);
         return resultDto;
