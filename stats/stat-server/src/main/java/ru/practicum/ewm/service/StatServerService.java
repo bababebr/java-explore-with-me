@@ -55,7 +55,6 @@ public class StatServerService implements IStatServerService {
             start = LocalDateTime.now().minusYears(2);
             end = LocalDateTime.now().plusYears(2);
         }
-
         if (unique) {
             return repository.countUniqueHits(start, end, uris);
         } else {

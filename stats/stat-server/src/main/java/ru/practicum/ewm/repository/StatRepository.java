@@ -8,11 +8,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface StatRepository extends JpaRepository<Hit, Long> {
-
-    @Query("SELECT h FROM Hit as h WHERE((h.timestamp BETWEEN ?1 AND ?2) or length(?1) is null) " +
-            "AND (h.uri in ?3 OR length(?3) is null)")
-    List<Hit> findHits(LocalDateTime start, LocalDateTime stop, List<String> uris, boolean unique);
-
     @Query("SELECT h FROM Hit as h WHERE((h.timestamp BETWEEN ?1 AND ?2) or length(?1) is null) " +
             "AND (h.uri in ?3 OR ?3 is null)" +
             "AND ((h.id in (SELECT MIN(subHit.id) FROM Hit as subHit GROUP BY subHit.uri, subHit.ip)) OR ?4 = false )")
@@ -25,6 +20,4 @@ public interface StatRepository extends JpaRepository<Hit, Long> {
     @Query("SELECT DISTINCT COUNT(DISTINCT h.ip) FROM  Hit as h WHERE ((h.timestamp BETWEEN ?1 AND ?2) or length(?1) is null) " +
             "AND (h.uri in ?3 or length(?3) is null)")
     Integer countUniqueHits(LocalDateTime start, LocalDateTime end, List<String> uris);
-
-
 }

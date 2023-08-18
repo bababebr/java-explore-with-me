@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import javax.validation.ValidationException;
 
 @RestControllerAdvice
-public class ExceptionnHandler {
+public class StatsExceptionsHandler {
 
     @ExceptionHandler({ValidationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)

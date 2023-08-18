@@ -35,11 +35,6 @@ public class StatsClient extends BaseClient {
         return get("/stats?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
     }
 
-    public ResponseEntity<Object> get(List<String> uris, boolean unique) {
-        HashMap<String, Object> parameters = createDtoFromRequest(null, null, uris, unique);
-        return get("/stats?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
-    }
-
     public ResponseEntity<Object> getHitsCount(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
         HashMap<String, Object> parameters = createDtoFromRequest(start, end, uris, unique);
         return get("/hits?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
