@@ -8,6 +8,7 @@ import ru.practicum.ewm.model.HitMapper;
 import ru.practicum.ewm.model.Hit;
 import ru.practicum.ewm.repository.StatRepository;
 
+import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,7 +32,7 @@ public class StatServerService implements IStatServerService {
     public List<HitDtoShort> get(LocalDateTime start, LocalDateTime stop, List<String> uris, boolean unique) {
         try {
             if(stop.isBefore(start)) {
-                throw new IllegalArgumentException("End date cannot be before start.");
+                throw new ValidationException("End date cannot be before start.");
             }
         } catch (NullPointerException e) {
             start = LocalDateTime.now().minusYears(2);
@@ -48,7 +49,7 @@ public class StatServerService implements IStatServerService {
     public Integer getHits(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
         try {
             if(end.isBefore(start)) {
-                throw new IllegalArgumentException("End date cannot be before start.");
+                throw new ValidationException("End date cannot be before start.");
             }
         } catch (NullPointerException e) {
             start = LocalDateTime.now().minusYears(2);
