@@ -16,10 +16,7 @@ import ru.practicum.ewm.repository.UserRepository;
 import ru.practicum.ewm.service.interfaces.IRequestService;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,7 +42,7 @@ public class RequestService implements IRequestService {
     }
 
     @Override
-    public List<ParticipantRequestDto> confirmRequest(Long userId, Long eventId, ParticipantRequestUpdateDto requestUpdateDto) {
+    public Map<String, List<ParticipantRequestDto>> confirmRequest(Long userId, Long eventId, ParticipantRequestUpdateDto requestUpdateDto) {
         List<ParticipantRequest> requests = participantRepository.findAllByUserIdAndEventIdAndIdIn(eventId,
                 requestUpdateDto.getRequestIds());
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NoSuchElementException("Event not found"));
@@ -66,7 +63,21 @@ public class RequestService implements IRequestService {
             ParticipantRequest r = participantRepository.save(request);
             requestDtos.add(ParticipantRequestMapper.requestToDto(r));
         }
-        return requestDtos;
+        HashMap<String, List<ParticipantRequestDto>> returnMap = new HashMap<>();
+        switch (newStatus) {
+            case CANCELED:
+                returnMap.put("canceledRequests", requestDtos);
+                break;
+            case PENDING:
+                returnMap.put("pendingRequests", requestDtos);
+                break;
+            case CONFIRMED:
+                returnMap.put("confirmedRequests", requestDtos);
+                break;
+            case REJECTED:
+                returnMap.put("rejectedRequests", requestDtos);
+        }
+        return returnMap;
     }
 
     @Override

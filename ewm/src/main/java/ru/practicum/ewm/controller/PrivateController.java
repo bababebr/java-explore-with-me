@@ -14,6 +14,7 @@ import ru.practicum.ewm.service.interfaces.IRequestService;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
@@ -69,8 +70,8 @@ public class PrivateController {
     }
 
     @PatchMapping("/{userId}/events/{eventId}/requests")
-    public List<ParticipantRequestDto> updateEventRequest(@PathVariable Long userId, @PathVariable Long eventId,
-                                                          @Valid @RequestBody ParticipantRequestUpdateDto requestUpdateDto) {
+    public Map<String, List<ParticipantRequestDto>> updateEventRequest(@PathVariable Long userId, @PathVariable Long eventId,
+                                                                       @Valid @RequestBody ParticipantRequestUpdateDto requestUpdateDto) {
         return requestService.confirmRequest(userId, eventId, requestUpdateDto);
     }
 

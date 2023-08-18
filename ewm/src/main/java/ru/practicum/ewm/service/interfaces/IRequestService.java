@@ -4,6 +4,7 @@ import ru.practicum.ewm.models.request.participantRequest.ParticipantRequestDto;
 import ru.practicum.ewm.models.request.participantRequest.ParticipantRequestUpdateDto;
 
 import java.util.List;
+import java.util.Map;
 
 public interface IRequestService {
     /**
@@ -17,5 +18,5 @@ public interface IRequestService {
 
     List<ParticipantRequestDto> getUserEventParticipationRequest(Long userId, Long evenId);
 
-    List<ParticipantRequestDto> confirmRequest(Long userId, Long eventId, ParticipantRequestUpdateDto requestUpdateDto);
+    Map<String, List<ParticipantRequestDto>> confirmRequest(Long userId, Long eventId, ParticipantRequestUpdateDto requestUpdateDto);
 }
