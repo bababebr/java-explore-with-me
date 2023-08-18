@@ -21,7 +21,7 @@ public class StatsClient extends BaseClient {
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Autowired
-    public StatsClient(@Value("${EWM_SERVER_URL}") String serverUrl, RestTemplateBuilder builder) {
+    public StatsClient(@Value("${CLIENT_URL}") String serverUrl, RestTemplateBuilder builder) {
         super(
                 builder
                         .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))
