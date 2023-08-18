@@ -63,6 +63,10 @@ public class RequestService implements IRequestService {
             ParticipantRequest r = participantRepository.save(request);
             requestDtos.add(ParticipantRequestMapper.requestToDto(r));
         }
+        /**
+         * Страная строка в тесте "Main service/Event/Отклонение запроса на участие в событии" - const target = pm.response.json()["rejectedRequests"][0];
+         * Пришлось позвращать Мапу, чтобы прошел скрипт теста
+         */
         HashMap<String, List<ParticipantRequestDto>> returnMap = new HashMap<>();
         switch (newStatus) {
             case CANCELED:
