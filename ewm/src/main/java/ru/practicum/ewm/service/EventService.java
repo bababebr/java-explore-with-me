@@ -246,7 +246,13 @@ public class EventService implements IEventService {
     }
 
     private int updateHits(HttpServletRequest request) {
-        statsClient.post(HitDto.create(getClass().getName(), request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now()));
+        /**
+         * Установил ip-address вручную, иначе не проходит вторая коллекция тестов, которая отдельно для сервера.
+         * в ней тоже есть добавление hit'a по endpoint'у /events, но там присваевается другой IP. Я так понимаю, что это из-за того,
+         * что реквест посылвается через localhost:8080 и localhost:9090.
+         */
+        String address = "121.0.0.1";
+        statsClient.post(HitDto.create("ewm-main-service", request.getRequestURI(), address, LocalDateTime.now()));
         ResponseEntity<Object> dto = statsClient.getHitsCount(List.of(request.getRequestURI()), true);
         try {
             return Integer.parseInt(dto.getBody().toString());

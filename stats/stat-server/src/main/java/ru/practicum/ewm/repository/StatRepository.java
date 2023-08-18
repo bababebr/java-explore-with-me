@@ -14,7 +14,7 @@ public interface StatRepository extends JpaRepository<Hit, Long> {
     List<Hit> findHits(LocalDateTime start, LocalDateTime stop, List<String> uris, boolean unique);
 
     @Query("SELECT h FROM Hit as h WHERE((h.timestamp BETWEEN ?1 AND ?2) or length(?1) is null) " +
-            "AND (h.uri in ?3 OR length(?3) is null)" +
+            "AND (h.uri in ?3 OR ?3 is null)" +
             "AND ((h.id in (SELECT MIN(subHit.id) FROM Hit as subHit GROUP BY subHit.uri, subHit.ip)) OR ?4 = false )")
     List<Hit> findUniqueHits(LocalDateTime start, LocalDateTime stop, List<String> uris, boolean unique);
 
