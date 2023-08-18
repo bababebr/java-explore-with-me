@@ -31,7 +31,7 @@ public class StatServerService implements IStatServerService {
     @Override
     public List<HitDtoShort> get(LocalDateTime start, LocalDateTime stop, List<String> uris, boolean unique) {
         try {
-            if(stop.isBefore(start)) {
+            if (stop.isBefore(start)) {
                 throw new ValidationException("End date cannot be before start.");
             }
         } catch (NullPointerException e) {
@@ -48,7 +48,7 @@ public class StatServerService implements IStatServerService {
     @Override
     public Integer getHits(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
         try {
-            if(end.isBefore(start)) {
+            if (end.isBefore(start)) {
                 throw new ValidationException("End date cannot be before start.");
             }
         } catch (NullPointerException e) {
