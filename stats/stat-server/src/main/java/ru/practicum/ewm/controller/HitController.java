@@ -2,6 +2,7 @@ package ru.practicum.ewm.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.dto.HitDto;
 import ru.practicum.ewm.dto.HitDtoShort;
@@ -22,6 +23,7 @@ public class HitController {
     }
 
     @PostMapping("/hit")
+    @ResponseStatus(HttpStatus.CREATED)
     public HitDto post(@RequestBody HitDto dto) {
         return service.add(dto);
     }
