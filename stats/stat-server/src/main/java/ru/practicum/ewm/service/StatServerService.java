@@ -1,7 +1,9 @@
 package ru.practicum.ewm.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import ru.practicum.ewm.dto.HitDto;
 import ru.practicum.ewm.dto.HitDtoShort;
 import ru.practicum.ewm.model.HitMapper;
@@ -32,7 +34,7 @@ public class StatServerService implements IStatServerService {
     public List<HitDtoShort> get(LocalDateTime start, LocalDateTime stop, List<String> uris, boolean unique) {
         try {
             if (stop.isBefore(start)) {
-                throw new ValidationException("End date cannot be before start.");
+                throw new IllegalArgumentException("End date cannot be before start.");
             }
         } catch (NullPointerException e) {
             start = LocalDateTime.now().minusYears(2);
