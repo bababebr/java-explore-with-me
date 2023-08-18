@@ -29,6 +29,10 @@ public class StatServerService implements IStatServerService {
 
     @Override
     public List<HitDtoShort> get(LocalDateTime start, LocalDateTime stop, List<String> uris, boolean unique) {
+        if (start.equals(null) || stop.equals(null) || stop.isBefore(start)) {
+            throw new IllegalArgumentException();
+        }
+
         List<Hit> hits = repository.findUniqueHits(start, stop, uris, unique);
         /*
         TODO reduce ifelse clause amount by proper query from db
