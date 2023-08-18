@@ -254,9 +254,18 @@ public class EventService implements IEventService {
         statsClient.post(HitDto.create("ewm-main-service", request.getRequestURI(), address, LocalDateTime.now()));
         ResponseEntity<Object> dto = statsClient.getHitsCount(start, end, List.of(request.getRequestURI()), true);
         try {
-            return Integer.parseInt(dto.getBody().toString());
+            if (end.isBefore(start)) {
+                throw new ValidationException("");
+            } else {
+                try {
+                    return Integer.parseInt(dto.getBody().toString());
+                } catch (NullPointerException e) {
+                    return 0;
+                }
+            }
         } catch (NullPointerException e) {
             return 0;
         }
+
     }
 }
