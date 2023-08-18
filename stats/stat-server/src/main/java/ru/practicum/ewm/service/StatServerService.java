@@ -29,15 +29,13 @@ public class StatServerService implements IStatServerService {
 
     @Override
     public List<HitDtoShort> get(LocalDateTime start, LocalDateTime stop, List<String> uris, boolean unique) {
-        if (start.equals(null) || stop.equals(null) || stop.isBefore(start)) {
-            throw new IllegalArgumentException();
+        try {
+            stop.isBefore(start);
+        } catch (NullPointerException e) {
+            start = LocalDateTime.now().minusYears(2);
+            stop = LocalDateTime.now().plusYears(2);
         }
-
         List<Hit> hits = repository.findUniqueHits(start, stop, uris, unique);
-        /*
-        TODO reduce ifelse clause amount by proper query from db
-         */
-
 
         List<HitDtoShort> resultDto = hits.stream().map(HitMapper::hitToDtoShort).collect(Collectors.toList());
         resultDto = setHitForSingleUri(resultDto, hits);
@@ -46,6 +44,13 @@ public class StatServerService implements IStatServerService {
 
     @Override
     public Integer getHits(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
+        try {
+            end.isBefore(start);
+        } catch (NullPointerException e) {
+            start = LocalDateTime.now().minusYears(2);
+            end = LocalDateTime.now().plusYears(2);
+        }
+
         if (unique) {
             return repository.countUniqueHits(start, end, uris);
         } else {

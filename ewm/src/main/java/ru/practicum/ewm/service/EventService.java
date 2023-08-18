@@ -61,8 +61,7 @@ public class EventService implements IEventService {
         Event event = repository.getEvent(id, EventStatus.PUBLISHED)
                 .orElseThrow(() -> new NoSuchElementException("Event not found"));
         Integer confirmedRequests = getConfirmedRequests(id);
-        int views = updateHits(request);
-
+        int views = updateHits(request, LocalDateTime.now().minusYears(2), LocalDateTime.now().plusYears(2));
         return EventMapper.eventToFull(event, confirmedRequests, views);
     }
 
@@ -108,7 +107,7 @@ public class EventService implements IEventService {
     public List<EventShortDto> getEvents(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
                                          LocalDateTime rangeEnd, Boolean onlyAvailable, Sort sort, int from, int size,
                                          HttpServletRequest request) {
-        int views = updateHits(request);
+        int views = updateHits(request, rangeStart, rangeEnd);
         if (text == null) {
             return new ArrayList<>();
         }
@@ -245,7 +244,7 @@ public class EventService implements IEventService {
                 List.of(ParticipantRequestStatus.CONFIRMED, ParticipantRequestStatus.PENDING));
     }
 
-    private int updateHits(HttpServletRequest request) {
+    private int updateHits(HttpServletRequest request, LocalDateTime start, LocalDateTime end) {
         /**
          * Установил ip-address вручную, иначе не проходит вторая коллекция тестов, которая отдельно для сервера.
          * в ней тоже есть добавление hit'a по endpoint'у /events, но там присваевается другой IP. Я так понимаю, что это из-за того,
@@ -253,7 +252,7 @@ public class EventService implements IEventService {
          */
         String address = "121.0.0.1";
         statsClient.post(HitDto.create("ewm-main-service", request.getRequestURI(), address, LocalDateTime.now()));
-        ResponseEntity<Object> dto = statsClient.getHitsCount(List.of(request.getRequestURI()), true);
+        ResponseEntity<Object> dto = statsClient.getHitsCount(start, end, List.of(request.getRequestURI()), true);
         try {
             return Integer.parseInt(dto.getBody().toString());
         } catch (NullPointerException e) {
