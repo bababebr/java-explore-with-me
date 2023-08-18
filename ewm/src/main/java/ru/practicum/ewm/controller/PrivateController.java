@@ -7,8 +7,8 @@ import ru.practicum.ewm.models.event.EventFullDto;
 import ru.practicum.ewm.models.event.EventShortDto;
 import ru.practicum.ewm.models.event.EventUpdateDto;
 import ru.practicum.ewm.models.event.NewEventDto;
-import ru.practicum.ewm.models.request.participantRequest.ParticipantRequestDto;
-import ru.practicum.ewm.models.request.participantRequest.ParticipantRequestUpdateDto;
+import ru.practicum.ewm.models.participantRequest.ParticipantRequestDto;
+import ru.practicum.ewm.models.participantRequest.ParticipantRequestUpdateDto;
 import ru.practicum.ewm.service.interfaces.IEventService;
 import ru.practicum.ewm.service.interfaces.IRequestService;
 

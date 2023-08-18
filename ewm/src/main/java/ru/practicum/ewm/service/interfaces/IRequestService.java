@@ -1,7 +1,7 @@
 package ru.practicum.ewm.service.interfaces;
 
-import ru.practicum.ewm.models.request.participantRequest.ParticipantRequestDto;
-import ru.practicum.ewm.models.request.participantRequest.ParticipantRequestUpdateDto;
+import ru.practicum.ewm.models.participantRequest.ParticipantRequestDto;
+import ru.practicum.ewm.models.participantRequest.ParticipantRequestUpdateDto;
 
 import java.util.List;
 import java.util.Map;

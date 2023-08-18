@@ -1,4 +1,4 @@
-package ru.practicum.ewm.models.request.participantRequest;
+package ru.practicum.ewm.models.participantRequest;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;

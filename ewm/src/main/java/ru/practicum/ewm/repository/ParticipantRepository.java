@@ -3,7 +3,7 @@ package ru.practicum.ewm.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ru.practicum.ewm.enums.ParticipantRequestStatus;
-import ru.practicum.ewm.models.request.participantRequest.ParticipantRequest;
+import ru.practicum.ewm.models.participantRequest.ParticipantRequest;
 
 import java.util.List;
 import java.util.Optional;
