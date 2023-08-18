@@ -12,6 +12,9 @@ public interface ParticipantRepository extends JpaRepository<ParticipantRequest,
 
     Optional<ParticipantRequest> findByUserIdAndEventId(Long userId, Long eventId);
 
+    Optional<ParticipantRequest> findAllByUserIdAndId(Long userId, Long requestId);
+
+    List<ParticipantRequest> findAllByEventIdIn(List<Long> eventId);
 
     Integer countAllByEventIdAndStatus(Long eventId, ParticipantRequestStatus status);
 
@@ -21,10 +24,6 @@ public interface ParticipantRepository extends JpaRepository<ParticipantRequest,
     @Query("SELECT p FROM ParticipantRequest AS p JOIN Event as e on e.id = p.eventId WHERE p.userId = ?1 AND e.initiator.id <> ?1")
     List<ParticipantRequest> getUserRequests(Long userId);
 
-    Optional<ParticipantRequest> findAllByUserIdAndId(Long userId, Long requestId);
-
     @Query("SELECT r FROM ParticipantRequest as r WHERE (r.id IN ?2) AND (r.eventId =?1)")
     List<ParticipantRequest> findAllByUserIdAndEventIdAndIdIn(Long eventId, List<Long> ids);
-
-    List<ParticipantRequest> findAllByEventIdIn(List<Long> eventId);
 }

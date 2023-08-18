@@ -19,6 +19,8 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     Optional<Event> findByInitiatorIdAndId(Long userId, Long eventId);
 
+    List<Event> findAllByCategory(Category category);
+
     @Query("SELECT e FROM Event as e WHERE (e.category.id in ?1 or (?1 is null OR 0 IN ?1)) " +
             "AND (e.participantLimit < (SELECT COUNT(pr.id) FROM ParticipantRequest as pr WHERE pr.eventId = e.id AND pr.status <> 'REJECTED') or ?2 = false) " +
             "AND (e.paid = ?3 or ?3 is null) " +
@@ -35,10 +37,8 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> getUserEvents(List<Long> usersId, List<EventStatus> states, List<Long> categories,
                               LocalDateTime rangeStart, LocalDateTime rangeEnd, Pageable pageable);
 
-    List<Event> findAllByCategory(Category category);
-
     @Query("SELECT e FROM Event as e WHERE e.id = ?1 AND e.state = ?2")
-    Optional<Event> getEvent(Long id, EventStatus state);
+    Optional<Event> getEventByIdAndState(Long id, EventStatus state);
 
     @Query("SELECT MAX(e.id) FROM Event as e")
     Optional<Long> getNextEventId();
