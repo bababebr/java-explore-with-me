@@ -159,10 +159,6 @@ public class EventService implements IEventService {
         List<EventShortDto> returnList = new ArrayList<>();
         for (Event e : events) {
             int participantCount = participantRepository.countAllByEventIdAndStatus(e.getId(), ParticipantRequestStatus.CONFIRMED);
-            /**
-             * TODO view count calc
-             */
-            int viewCount = 0;
             EventShortDto shortDto = EventMapper.eventToShort(e, 0);
             shortDto.setConfirmedRequests(participantCount);
             returnList.add(shortDto);
@@ -213,6 +209,7 @@ public class EventService implements IEventService {
                     event.setPublishedDate(LocalDateTime.now());
                     break;
                 case REJECT_EVENT:
+                    event.setState(EventStatus.REJECTED);
                 case CANCEL_REVIEW:
                     event.setState(EventStatus.CANCELED);
                     break;
@@ -247,19 +244,6 @@ public class EventService implements IEventService {
     private int updateHits(HttpServletRequest request, LocalDateTime start, LocalDateTime end) {
         statsClient.post(HitDto.create("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now()));
         ResponseEntity<Object> dto = statsClient.getHitsCount(start, end, List.of(request.getRequestURI()), true);
-        try {
-            if (end.isBefore(start)) {
-                throw new ValidationException("");
-            } else {
-                try {
-                    return Integer.parseInt(dto.getBody().toString());
-                } catch (NullPointerException e) {
-                    return 0;
-                }
-            }
-        } catch (NullPointerException e) {
-            return 0;
-        }
-
+        return Integer.parseInt(dto.getBody().toString());
     }
 }

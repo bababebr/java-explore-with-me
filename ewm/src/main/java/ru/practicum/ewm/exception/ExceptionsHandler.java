@@ -14,7 +14,7 @@ import java.util.NoSuchElementException;
 @RestControllerAdvice
 public class ExceptionsHandler {
 
-    @ExceptionHandler({ValidationException.class})
+    @ExceptionHandler({ValidationException.class, NumberFormatException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse validationException(final RuntimeException e) {
         return new ErrorResponse(e.getStackTrace(), e.getMessage(), e.getLocalizedMessage(),
