@@ -61,6 +61,7 @@ public class CategoryService implements ICategoryService {
         List<Category> categories = repository.findAll(PageRequest.of(form, size)).getContent();
         return categories.stream().map(CategoryMapper::categoryToDto).collect(Collectors.toList());
     }
+
     @Transactional(readOnly = true)
     @Override
     public CategoryDto get(Long id) {
