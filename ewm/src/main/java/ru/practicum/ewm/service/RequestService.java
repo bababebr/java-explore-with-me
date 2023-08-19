@@ -3,6 +3,7 @@ package ru.practicum.ewm.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.enums.EventStatus;
 import ru.practicum.ewm.enums.ParticipantRequestStatus;
 import ru.practicum.ewm.mapper.ParticipantRequestMapper;
@@ -20,6 +21,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class RequestService implements IRequestService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
@@ -33,6 +35,7 @@ public class RequestService implements IRequestService {
         this.participantRepository = participantRepository;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<ParticipantRequestDto> getUserEventParticipationRequest(Long userId, Long evenId) {
         List<Event> events = eventRepository.findAllByInitiatorId(userId, Pageable.unpaged());
@@ -85,6 +88,7 @@ public class RequestService implements IRequestService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ParticipantRequestDto> getUserRequest(Long userId) {
         List<ParticipantRequest> request = participantRepository.getUserRequests(userId);
         return request.stream().map(ParticipantRequestMapper::requestToDto).collect(Collectors.toList());

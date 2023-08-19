@@ -35,7 +35,6 @@ public class CompilationService implements ICompilationService {
         this.eventRepository = eventRepository;
     }
 
-    @Transactional
     @Override
     public CompilationDto add(NewCompilationDto compilationDto) {
         Long nextCompilationId = repository.getNextCompilationId().orElse(0L);
@@ -58,13 +57,11 @@ public class CompilationService implements ICompilationService {
         return returnDto;
     }
 
-    @Transactional
     @Override
     public void delete(Long compilationId) {
         repository.deleteAllByCompilationId(compilationId);
     }
 
-    @Transactional
     @Override
     public CompilationDto update(NewCompilationDto compilationDto, Long compilationId) {
         List<Compilation> compilations = repository.getCompilationsById(compilationId);

@@ -3,6 +3,7 @@ package ru.practicum.ewm.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.mapper.CategoryMapper;
 import ru.practicum.ewm.models.category.Category;
 import ru.practicum.ewm.models.category.CategoryDto;
@@ -16,6 +17,7 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class CategoryService implements ICategoryService {
     private final CategoryRepository repository;
     private final EventRepository eventRepository;
@@ -53,12 +55,13 @@ public class CategoryService implements ICategoryService {
         return CategoryMapper.categoryToDto(repository.save(category));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<CategoryDto> getAll(int form, int size) {
         List<Category> categories = repository.findAll(PageRequest.of(form, size)).getContent();
         return categories.stream().map(CategoryMapper::categoryToDto).collect(Collectors.toList());
     }
-
+    @Transactional(readOnly = true)
     @Override
     public CategoryDto get(Long id) {
         Category category = repository.findById(id).orElseThrow(()

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.client.StatsClient;
 import ru.practicum.ewm.dto.HitDto;
 import ru.practicum.ewm.enums.EventStatus;
@@ -29,6 +30,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class EventService implements IEventService {
 
     private final EventRepository repository;
@@ -51,6 +53,7 @@ public class EventService implements IEventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<EventShortDto> getUserOwnEvents(Long userId, int from, int size) {
         List<Event> events = repository.findAllByInitiatorId(userId, PageRequest.of(from, size));
         return setEventShortDto(events);
@@ -92,6 +95,7 @@ public class EventService implements IEventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public EventFullDto getEventFullInfo(Long userId, Long eventId) {
         int confirmedRequests = participantRepository.countAllByEventIdAndStatusIn(eventId,
                 List.of(ParticipantRequestStatus.CONFIRMED));
@@ -128,6 +132,7 @@ public class EventService implements IEventService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<EventFullDto> getUsersEvent(List<Long> usersId, List<EventStatus> states, List<Long> categoriesId,
                                             LocalDateTime rangeStart, LocalDateTime rangeEnd, int from, int size) {
         List<Event> events = repository.getUserEvents(usersId, states, categoriesId, rangeStart, rangeEnd,
@@ -153,17 +158,6 @@ public class EventService implements IEventService {
         Event event = update(oldEvent, dto);
         Integer confirmedRequests = getConfirmedRequests(eventId);
         return EventMapper.eventToFull(event, confirmedRequests, 0);
-    }
-
-    private List<EventShortDto> setEventShortDto(List<Event> events) {
-        List<EventShortDto> returnList = new ArrayList<>();
-        for (Event e : events) {
-            int participantCount = participantRepository.countAllByEventIdAndStatus(e.getId(), ParticipantRequestStatus.CONFIRMED);
-            EventShortDto shortDto = EventMapper.eventToShort(e, 0);
-            shortDto.setConfirmedRequests(participantCount);
-            returnList.add(shortDto);
-        }
-        return returnList;
     }
 
     @Override
@@ -239,6 +233,17 @@ public class EventService implements IEventService {
     private int getConfirmedRequests(Long eventId) {
         return participantRepository.countAllByEventIdAndStatusIn(eventId,
                 List.of(ParticipantRequestStatus.CONFIRMED, ParticipantRequestStatus.PENDING));
+    }
+
+    private List<EventShortDto> setEventShortDto(List<Event> events) {
+        List<EventShortDto> returnList = new ArrayList<>();
+        for (Event e : events) {
+            int participantCount = participantRepository.countAllByEventIdAndStatus(e.getId(), ParticipantRequestStatus.CONFIRMED);
+            EventShortDto shortDto = EventMapper.eventToShort(e, 0);
+            shortDto.setConfirmedRequests(participantCount);
+            returnList.add(shortDto);
+        }
+        return returnList;
     }
 
     private int updateHits(HttpServletRequest request, LocalDateTime start, LocalDateTime end) {

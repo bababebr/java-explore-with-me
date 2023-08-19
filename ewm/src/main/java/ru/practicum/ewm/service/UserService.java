@@ -3,6 +3,7 @@ package ru.practicum.ewm.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.mapper.UserMapper;
 import ru.practicum.ewm.models.user.User;
 import ru.practicum.ewm.repository.UserRepository;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class UserService implements IUserService {
 
     private final UserRepository repository;
@@ -39,8 +41,8 @@ public class UserService implements IUserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<UserDto> getUsers(List<Long> ids, int from, int size) {
-        System.out.println(ids);
         if (ids == null) {
             return repository.findAll(PageRequest.of(from, size)).stream().map(UserMapper::userToDto).collect(Collectors.toList());
         }
