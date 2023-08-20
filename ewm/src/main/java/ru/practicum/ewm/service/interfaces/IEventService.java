@@ -1,7 +1,6 @@
 package ru.practicum.ewm.service.interfaces;
 
 import ru.practicum.ewm.enums.EventStatus;
-import ru.practicum.ewm.enums.Sort;
 import ru.practicum.ewm.models.event.*;
 
 import javax.servlet.http.HttpServletRequest;
