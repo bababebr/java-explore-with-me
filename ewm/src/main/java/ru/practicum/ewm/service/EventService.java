@@ -203,7 +203,6 @@ public class EventService implements IEventService {
                     event.setPublishedDate(LocalDateTime.now());
                     break;
                 case REJECT_EVENT:
-                    event.setState(EventStatus.REJECTED);
                 case CANCEL_REVIEW:
                     event.setState(EventStatus.CANCELED);
                     break;
