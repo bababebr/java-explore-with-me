@@ -64,7 +64,7 @@ public class EventService implements IEventService {
         Event event = repository.getEventByIdAndState(id, EventStatus.PUBLISHED)
                 .orElseThrow(() -> new NoSuchElementException("Event not found"));
         Integer confirmedRequests = getConfirmedRequests(id);
-        int views = updateHits(request, LocalDateTime.now().minusYears(2), LocalDateTime.now().plusYears(2));
+        int views = updateHits(request, event.getPublishedDate(), LocalDateTime.now());
         return EventMapper.eventToFull(event, confirmedRequests, views);
     }
 

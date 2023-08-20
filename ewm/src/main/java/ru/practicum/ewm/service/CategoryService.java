@@ -36,7 +36,8 @@ public class CategoryService implements ICategoryService {
 
     @Override
     public void delete(Long id) {
-        Category category = repository.findById(id).orElseThrow(() -> new NoSuchElementException());
+        Category category = repository.findById(id).orElseThrow(() ->
+                new NoSuchElementException(String.format("Category with ID=%s not found", id)));
         if (eventRepository.findAllByCategory(category).isEmpty()) {
             repository.delete(category);
         } else {
