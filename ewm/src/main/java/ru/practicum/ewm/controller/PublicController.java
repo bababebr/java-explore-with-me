@@ -7,6 +7,7 @@ import ru.practicum.ewm.enums.Sort;
 import ru.practicum.ewm.models.category.CategoryDto;
 import ru.practicum.ewm.models.compilations.CompilationDto;
 import ru.practicum.ewm.models.event.EventFullDto;
+import ru.practicum.ewm.models.event.EventSearchDto;
 import ru.practicum.ewm.models.event.EventShortDto;
 import ru.practicum.ewm.service.CategoryService;
 import ru.practicum.ewm.service.CompilationService;
@@ -46,7 +47,8 @@ public class PublicController {
                                          @RequestParam(defaultValue = "0") @Min(0) int from,
                                          @RequestParam(defaultValue = "10") @Min(1) int size,
                                          HttpServletRequest request) {
-        return eventService.getEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size, request);
+        EventSearchDto dto = EventSearchDto.create(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort);
+        return eventService.getEvents(dto, from, size, request);
     }
 
     @GetMapping("/events/{id}")

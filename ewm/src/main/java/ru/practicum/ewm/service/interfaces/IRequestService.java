@@ -18,5 +18,5 @@ public interface IRequestService {
 
     List<ParticipantRequestDto> getUserEventParticipationRequest(Long userId, Long evenId);
 
-    Map<String, List<ParticipantRequestDto>> confirmRequest(Long userId, Long eventId, ParticipantRequestUpdateDto requestUpdateDto);
+    Map<String, List<ParticipantRequestDto>> changeRequestStatus(Long userId, Long eventId, ParticipantRequestUpdateDto requestUpdateDto);
 }

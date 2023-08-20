@@ -25,5 +25,5 @@ public interface ParticipantRepository extends JpaRepository<ParticipantRequest,
     List<ParticipantRequest> getUserRequests(Long userId);
 
     @Query("SELECT r FROM ParticipantRequest as r WHERE (r.id IN ?2) AND (r.eventId =?1)")
-    List<ParticipantRequest> findAllByUserIdAndEventIdAndIdIn(Long eventId, List<Long> ids);
+    List<ParticipantRequest> findAllByUserIdAndEventIdIn(Long eventId, List<Long> ids);
 }

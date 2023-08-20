@@ -45,8 +45,8 @@ public class RequestService implements IRequestService {
     }
 
     @Override
-    public Map<String, List<ParticipantRequestDto>> confirmRequest(Long userId, Long eventId, ParticipantRequestUpdateDto requestUpdateDto) {
-        List<ParticipantRequest> requests = participantRepository.findAllByUserIdAndEventIdAndIdIn(eventId,
+    public Map<String, List<ParticipantRequestDto>> changeRequestStatus(Long userId, Long eventId, ParticipantRequestUpdateDto requestUpdateDto) {
+        List<ParticipantRequest> requests = participantRepository.findAllByUserIdAndEventIdIn(eventId,
                 requestUpdateDto.getRequestIds());
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NoSuchElementException("Event not found"));
 
@@ -59,17 +59,15 @@ public class RequestService implements IRequestService {
             if (confirmedEventRequests >= event.getParticipantLimit()) {
                 throw new IllegalStateException("Participant limit has been reached.");
             }
-            if (request.getStatus().equals(ParticipantRequestStatus.CONFIRMED) && requestUpdateDto.getStatus().equals(ParticipantRequestStatus.REJECTED)) {
+            if (request.getStatus().equals(ParticipantRequestStatus.CONFIRMED) && requestUpdateDto.getStatus()
+                    .equals(ParticipantRequestStatus.REJECTED)) {
                 throw new IllegalStateException("Can't cancel confirmed request");
             }
             request.setStatus(newStatus);
             ParticipantRequest r = participantRepository.save(request);
             requestDtos.add(ParticipantRequestMapper.requestToDto(r));
         }
-        /**
-         * Страная строка в тесте "Main service/Event/Отклонение запроса на участие в событии" - const target = pm.response.json()["rejectedRequests"][0];
-         * Пришлось позвращать Мапу, чтобы прошел скрипт теста
-         */
+
         HashMap<String, List<ParticipantRequestDto>> returnMap = new HashMap<>();
         switch (newStatus) {
             case CANCELED:

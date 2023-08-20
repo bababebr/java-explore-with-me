@@ -72,7 +72,7 @@ public class PrivateController {
     @PatchMapping("/{userId}/events/{eventId}/requests")
     public Map<String, List<ParticipantRequestDto>> updateEventRequest(@PathVariable Long userId, @PathVariable Long eventId,
                                                                        @Valid @RequestBody ParticipantRequestUpdateDto requestUpdateDto) {
-        return requestService.confirmRequest(userId, eventId, requestUpdateDto);
+        return requestService.changeRequestStatus(userId, eventId, requestUpdateDto);
     }
 
     @PostMapping("/{userId}/requests")

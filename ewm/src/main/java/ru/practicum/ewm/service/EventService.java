@@ -108,25 +108,23 @@ public class EventService implements IEventService {
     }
 
     @Override
-    public List<EventShortDto> getEvents(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
-                                         LocalDateTime rangeEnd, Boolean onlyAvailable, Sort sort, int from, int size,
+    public List<EventShortDto> getEvents(EventSearchDto dto, int from, int size,
                                          HttpServletRequest request) {
-        int views = updateHits(request, rangeStart, rangeEnd);
-        if (text == null) {
+        int views = updateHits(request, dto.getStart(), dto.getEnd());
+        if (dto.getText() == null) {
             return new ArrayList<>();
         }
-        if (rangeStart != null && rangeEnd.isBefore(rangeStart)) {
+        if (dto.getStart() != null && dto.getEnd().isBefore(dto.getStart())) {
             throw new ValidationException("End date can't be before start");
         }
         String sortType;
-        if (sort.equals(Sort.VIEWS)) {
+        if (dto.getSort().equals(Sort.VIEWS)) {
             sortType = "e.views";
         } else {
             sortType = "e.event_date";
         }
-
-        List<Event> events = repository.getEvents(categories, onlyAvailable, paid, text, rangeStart,
-                rangeEnd, sortType, PageRequest.of(from, size));
+        List<Event> events = repository.getEvents(dto.getCategories(), dto.getOnlyAvailable(), dto.getPaid(),
+                dto.getText(), dto.getStart(), dto.getEnd(), sortType, PageRequest.of(from, size));
 
         return events.stream().map(e -> EventMapper.eventToShort(e, views)).collect(Collectors.toList());
     }

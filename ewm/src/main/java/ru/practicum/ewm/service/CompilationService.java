@@ -47,12 +47,13 @@ public class CompilationService implements ICompilationService {
             repository.save(CompilationMapper.newCompilationToCompilation(null, compilationDto.getTitle(),
                     compilationDto.getPinned(), nextCompilationId));
         } else {
-            for (Long eventId : compilationDto.getEvents()) {
-                Event event = eventRepository.findById(eventId)
-                        .orElseThrow(() -> new NoSuchElementException("Event not found"));
+            List<Event> events = eventRepository.findAllById(compilationDto.getEvents());
+            List<Compilation> compilations = new ArrayList<>();
+            for (Event event : events) {
                 returnDto.getEvents().add(EventMapper.eventToShort(event, 0));
-                repository.save(CompilationMapper.dtoToCompilation(returnDto, event));
+                compilations.add(CompilationMapper.dtoToCompilation(returnDto, event));
             }
+            repository.saveAll(compilations);
         }
         return returnDto;
     }
