@@ -30,12 +30,8 @@ public class CategoryService implements ICategoryService {
 
     @Override
     public CategoryDto add(NewCategoryDto dto) {
-        try {
-            Category category = repository.save(CategoryMapper.newCategoryToCategory(dto));
-            return CategoryMapper.categoryToDto(category);
-        } catch (RuntimeException e) {
-            throw new IllegalArgumentException(e.getMessage());
-        }
+        Category category = repository.save(CategoryMapper.newCategoryToCategory(dto));
+        return CategoryMapper.categoryToDto(category);
     }
 
     @Override
