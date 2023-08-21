@@ -26,9 +26,9 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "AND (e.paid = ?3 or ?3 is null) " +
             "AND (((UPPER(e.annotation) like UPPER(concat('%',?4,'%'))) OR ?4 = '0') " +
             "OR ((UPPER(e.description) like UPPER(concat('%',?4,'%'))) OR ?4 = '0')) " +
-            "AND ((e.eventDate BETWEEN ?5 AND ?6) OR length(?5) is null AND e.eventDate > current_timestamp) order by ?7")
+            "AND ((e.eventDate BETWEEN ?5 AND ?6) OR length(?5) is null AND e.eventDate > current_timestamp)")
     List<Event> getEvents(List<Long> categories, Boolean onlyAvailable, Boolean paid, String text,
-                          LocalDateTime rangeStart, LocalDateTime rangeEnd, String sort, Pageable pageable);
+                          LocalDateTime rangeStart, LocalDateTime rangeEnd, Pageable pageable);
 
     @Query("SELECT e FROM Event as e WHERE (e.initiator.id IN ?1 or 0 = ?1 ) " +
             "AND (e.state in ?2 or ?2 is null) " +

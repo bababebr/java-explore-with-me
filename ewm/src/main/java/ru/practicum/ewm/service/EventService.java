@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.client.StatsClient;
+import ru.practicum.ewm.comparators.EventSortByDate;
+import ru.practicum.ewm.comparators.EventSortByViews;
 import ru.practicum.ewm.dto.HitDto;
 import ru.practicum.ewm.enums.EventStatus;
 import ru.practicum.ewm.enums.ParticipantRequestStatus;
@@ -23,10 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.ValidationException;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -117,16 +116,18 @@ public class EventService implements IEventService {
         if (dto.getStart() != null && dto.getEnd().isBefore(dto.getStart())) {
             throw new ValidationException("End date can't be before start");
         }
-        String sortType;
-        if (dto.getSort().equals(Sort.VIEWS)) {
-            sortType = "e.views";
-        } else {
-            sortType = "e.event_date";
+
+        Comparator<EventShortDto> comparator;
+        switch (dto.getSort()) {
+            case VIEWS:
+                comparator = new EventSortByViews();
+                break;
+            default:
+                comparator = new EventSortByDate();
         }
         List<Event> events = repository.getEvents(dto.getCategories(), dto.getOnlyAvailable(), dto.getPaid(),
-                dto.getText(), dto.getStart(), dto.getEnd(), sortType, PageRequest.of(from, size));
-
-        return events.stream().map(e -> EventMapper.eventToShort(e, views)).collect(Collectors.toList());
+                dto.getText(), dto.getStart(), dto.getEnd(), PageRequest.of(from, size));
+        return events.stream().map(e -> EventMapper.eventToShort(e, views)).sorted(comparator).collect(Collectors.toList());
     }
 
     @Override

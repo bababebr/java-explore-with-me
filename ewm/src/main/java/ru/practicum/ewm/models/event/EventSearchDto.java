@@ -23,14 +23,5 @@ public class EventSearchDto {
     LocalDateTime end;
     Boolean onlyAvailable;
     Sort sort;
-    /*
-    @RequestParam(defaultValue = "0") String text,
-                                         @RequestParam(required = false) List<Long> categories,
-                                         @RequestParam(required = false) Boolean paid,
-                                         @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss[.SSS]") LocalDateTime rangeStart,
-                                         @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss[.SSS]") LocalDateTime rangeEnd,
-                                         @RequestParam(defaultValue = "false") Boolean onlyAvailable,
-                                         @RequestParam(defaultValue = "VIEWS") Sort sort,
-     */
 
 }
