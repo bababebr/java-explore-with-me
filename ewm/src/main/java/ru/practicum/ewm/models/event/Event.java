@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.practicum.ewm.enums.EventStatus;
 import ru.practicum.ewm.models.category.Category;
-import ru.practicum.ewm.models.compilations.Compilation;
 import ru.practicum.ewm.models.location.Location;
 import ru.practicum.ewm.models.user.User;
 
