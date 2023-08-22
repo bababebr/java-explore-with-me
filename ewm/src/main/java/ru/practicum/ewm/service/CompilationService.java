@@ -3,28 +3,22 @@ package ru.practicum.ewm.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.client.StatsClient;
 import ru.practicum.ewm.mapper.CompilationMapper;
-import ru.practicum.ewm.mapper.EventMapper;
 import ru.practicum.ewm.models.compilations.Compilation;
 import ru.practicum.ewm.models.compilations.CompilationDto;
 import ru.practicum.ewm.models.compilations.NewCompilationDto;
 import ru.practicum.ewm.models.event.Event;
-import ru.practicum.ewm.models.event.EventShortDto;
 import ru.practicum.ewm.repository.CompilationRepository;
 import ru.practicum.ewm.repository.EventRepository;
 import ru.practicum.ewm.service.interfaces.ICompilationService;
 
 import javax.validation.ValidationException;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -49,7 +43,7 @@ public class CompilationService implements ICompilationService {
         eventsSet.addAll(events);
         Compilation c = CompilationMapper.newCompilationToCompilation(eventsSet, compilationDto.getTitle(), compilationDto.getPinned());
         Compilation saved = repository.save(c);
-        return CompilationMapper.compilationToDto(saved, 0);
+        return CompilationMapper.compilationToDto(saved, new HashMap<>());
     }
 
     @Override
@@ -63,13 +57,21 @@ public class CompilationService implements ICompilationService {
                 () -> new NoSuchElementException("Compilation not found."));
         updateDto(compilation, compilationDto);
         Compilation saved = repository.save(compilation);
-        return CompilationMapper.compilationToDto(saved,0);
+        return CompilationMapper.compilationToDto(saved, new HashMap<>());
     }
 
     @Transactional(readOnly = true)
     public List<CompilationDto> getCompilations(int from, int size) {
         List<Compilation> compilations = repository.getAll(PageRequest.of(from, size));
-        return compilations.stream().map(CompilationMapper::compilationToDto).collect(Collectors.toList());
+        List<CompilationDto> returnDtoList = new ArrayList<>();
+        for (Compilation c : compilations) {
+            HashMap<Long, Integer> eventViewsMap = new HashMap<>();
+            for (Event e : c.getEvent()) {
+                eventViewsMap.put(e.getId(), getEventViews(e));
+            }
+            returnDtoList.add(CompilationMapper.compilationToDto(c, eventViewsMap));
+        }
+        return returnDtoList;
     }
 
     @Transactional(readOnly = true)
@@ -77,7 +79,11 @@ public class CompilationService implements ICompilationService {
     public CompilationDto getCompilation(Long id) {
         Compilation compilation = repository.findById(id).orElseThrow(
                 () -> new NoSuchElementException("Compilation not found."));
-        return CompilationMapper.compilationToDto(compilation);
+        HashMap<Long, Integer> eventViewsMap = new HashMap<>();
+        for (Event e : compilation.getEvent()) {
+            eventViewsMap.put(e.getId(), getEventViews(e));
+        }
+        return CompilationMapper.compilationToDto(compilation, eventViewsMap);
     }
 
     private void updateDto(Compilation compilation, NewCompilationDto newDto) {
@@ -86,16 +92,25 @@ public class CompilationService implements ICompilationService {
         if (newDto.getPinned() != null) {
             compilation.setPinned(newDto.getPinned());
         }
-        if (newDto.getTitle() != null && newDto.getTitle().length() <= 50) {
-            compilation.setTitle(newDto.getTitle());
+        if (newDto.getTitle() == null) {
+            return;
         }
+        if (newDto.getTitle().length() > 50) {
+            throw new ValidationException();
+        }
+        compilation.setTitle(newDto.getTitle());
     }
 
     private int getEventViews(Event event) {
         String uri = "/events/" + event.getId();
         ResponseEntity<Object> views = statsClient.getHitsCount(event.getPublishedDate(), LocalDateTime.now(),
                 List.of(uri), true);
-        return Integer.parseInt(String.valueOf(views));
+        try {
+            return Integer.parseInt(views.getBody().toString());
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+
     }
 
 }

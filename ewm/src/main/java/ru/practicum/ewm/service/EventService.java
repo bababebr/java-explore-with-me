@@ -11,7 +11,6 @@ import ru.practicum.ewm.comparators.EventSortByViews;
 import ru.practicum.ewm.dto.HitDto;
 import ru.practicum.ewm.enums.EventStatus;
 import ru.practicum.ewm.enums.ParticipantRequestStatus;
-import ru.practicum.ewm.enums.Sort;
 import ru.practicum.ewm.enums.StateAction;
 import ru.practicum.ewm.mapper.EventMapper;
 import ru.practicum.ewm.models.category.Category;

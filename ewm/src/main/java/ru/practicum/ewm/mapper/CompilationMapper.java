@@ -8,6 +8,7 @@ import ru.practicum.ewm.models.event.EventShortDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -20,9 +21,9 @@ public class CompilationMapper {
         return Compilation.create(0L, event, compilation.getPinned(), compilation.getTitle());
     }
 
-    public static CompilationDto compilationToDto(Compilation c, int views) {
+    public static CompilationDto compilationToDto(Compilation c, Map<Long, Integer> eventViewsMap) {
         List<EventShortDto> shortDtoList = c.getEvent().stream().map(
-                e -> EventMapper.eventToShort(e, 0)).collect(Collectors.toList());
+                e -> EventMapper.eventToShort(e, eventViewsMap.getOrDefault(e.getId(), 0))).collect(Collectors.toList());
         return CompilationDto.create(c.getId(), shortDtoList, c.getPinned(), c.getTitle());
     }
 
