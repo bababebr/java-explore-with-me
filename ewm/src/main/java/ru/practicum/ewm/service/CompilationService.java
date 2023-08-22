@@ -4,8 +4,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.ewm.client.StatsClient;
 import ru.practicum.ewm.mapper.CompilationMapper;
 import ru.practicum.ewm.mapper.EventMapper;
 import ru.practicum.ewm.models.compilations.Compilation;
@@ -18,6 +20,7 @@ import ru.practicum.ewm.repository.EventRepository;
 import ru.practicum.ewm.service.interfaces.ICompilationService;
 
 import javax.validation.ValidationException;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -29,11 +32,14 @@ import java.util.stream.Collectors;
 public class CompilationService implements ICompilationService {
     private final CompilationRepository repository;
     private final EventRepository eventRepository;
+    private final StatsClient statsClient;
 
     @Autowired
-    public CompilationService(CompilationRepository repository, EventRepository eventRepository) {
+    public CompilationService(CompilationRepository repository, EventRepository eventRepository,
+                              StatsClient statsClient) {
         this.repository = repository;
         this.eventRepository = eventRepository;
+        this.statsClient = statsClient;
     }
 
     @Override
@@ -43,7 +49,7 @@ public class CompilationService implements ICompilationService {
         eventsSet.addAll(events);
         Compilation c = CompilationMapper.newCompilationToCompilation(eventsSet, compilationDto.getTitle(), compilationDto.getPinned());
         Compilation saved = repository.save(c);
-        return CompilationMapper.compilationToDto(saved);
+        return CompilationMapper.compilationToDto(saved, 0);
     }
 
     @Override
@@ -57,7 +63,7 @@ public class CompilationService implements ICompilationService {
                 () -> new NoSuchElementException("Compilation not found."));
         updateDto(compilation, compilationDto);
         Compilation saved = repository.save(compilation);
-        return CompilationMapper.compilationToDto(saved);
+        return CompilationMapper.compilationToDto(saved,0);
     }
 
     @Transactional(readOnly = true)
@@ -83,6 +89,13 @@ public class CompilationService implements ICompilationService {
         if (newDto.getTitle() != null && newDto.getTitle().length() <= 50) {
             compilation.setTitle(newDto.getTitle());
         }
+    }
+
+    private int getEventViews(Event event) {
+        String uri = "/events/" + event.getId();
+        ResponseEntity<Object> views = statsClient.getHitsCount(event.getPublishedDate(), LocalDateTime.now(),
+                List.of(uri), true);
+        return Integer.parseInt(String.valueOf(views));
     }
 
 }

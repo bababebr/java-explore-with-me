@@ -1,10 +1,12 @@
 package ru.practicum.ewm.mapper;
 
+import org.springframework.http.ResponseEntity;
 import ru.practicum.ewm.models.compilations.Compilation;
 import ru.practicum.ewm.models.compilations.CompilationDto;
 import ru.practicum.ewm.models.event.Event;
 import ru.practicum.ewm.models.event.EventShortDto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -18,9 +20,10 @@ public class CompilationMapper {
         return Compilation.create(0L, event, compilation.getPinned(), compilation.getTitle());
     }
 
-    public static CompilationDto compilationToDto(Compilation c) {
+    public static CompilationDto compilationToDto(Compilation c, int views) {
         List<EventShortDto> shortDtoList = c.getEvent().stream().map(
                 e -> EventMapper.eventToShort(e, 0)).collect(Collectors.toList());
         return CompilationDto.create(c.getId(), shortDtoList, c.getPinned(), c.getTitle());
     }
+
 }
