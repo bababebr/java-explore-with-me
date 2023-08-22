@@ -6,6 +6,7 @@ import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -14,7 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor(staticName = "create")
 @AllArgsConstructor(staticName = "create")
 public class NewCompilationDto {
-    List<Long> events;
+    List<Long> events = new ArrayList<>();
     @NotNull
     Boolean pinned = false;
     @NotBlank
