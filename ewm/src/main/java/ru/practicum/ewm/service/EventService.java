@@ -11,6 +11,7 @@ import ru.practicum.ewm.comparators.EventSortByViews;
 import ru.practicum.ewm.dto.HitDto;
 import ru.practicum.ewm.enums.EventStatus;
 import ru.practicum.ewm.enums.ParticipantRequestStatus;
+import ru.practicum.ewm.enums.Sort;
 import ru.practicum.ewm.enums.StateAction;
 import ru.practicum.ewm.mapper.EventMapper;
 import ru.practicum.ewm.models.category.Category;
@@ -62,7 +63,7 @@ public class EventService implements IEventService {
         Event event = repository.getEventByIdAndState(id, EventStatus.PUBLISHED)
                 .orElseThrow(() -> new NoSuchElementException("Event not found"));
         Integer confirmedRequests = getConfirmedRequests(id);
-        int views = updateHits(request, event.getPublishedDate(), LocalDateTime.now());
+        int views = updateEventHits(request, event.getPublishedDate(), LocalDateTime.now());
         return EventMapper.eventToFull(event, confirmedRequests, views);
     }
 
@@ -102,31 +103,38 @@ public class EventService implements IEventService {
         if (!Objects.equals(event.getInitiator().getId(), userId)) {
             throw new IllegalStateException(String.format("USER with ID=%s not an owner", userId));
         }
-        return EventMapper.eventToFull(event, confirmedRequests, 0);
+        int views = getEventViews(event);
+        return EventMapper.eventToFull(event, confirmedRequests, views);
     }
 
     @Override
     public List<EventShortDto> getEvents(EventSearchDto dto, int from, int size,
                                          HttpServletRequest request) {
-        int views = updateHits(request, dto.getStart(), dto.getEnd());
+        updateEventHits(request, dto.getStart(), dto.getEnd());
         if (dto.getText() == null) {
             return new ArrayList<>();
         }
         if (dto.getStart() != null && dto.getEnd().isBefore(dto.getStart())) {
             throw new ValidationException("End date can't be before start");
         }
-
         Comparator<EventShortDto> comparator;
-        switch (dto.getSort()) {
-            case VIEWS:
-                comparator = new EventSortByViews();
-                break;
-            default:
-                comparator = new EventSortByDate();
+
+        if (dto.getSort() == Sort.VIEWS) {
+            comparator = new EventSortByViews();
+        } else {
+            comparator = new EventSortByDate();
         }
+
         List<Event> events = repository.getEvents(dto.getCategories(), dto.getOnlyAvailable(), dto.getPaid(),
                 dto.getText(), dto.getStart(), dto.getEnd(), PageRequest.of(from, size));
-        return events.stream().map(e -> EventMapper.eventToShort(e, views)).sorted(comparator).collect(Collectors.toList());
+        List<EventShortDto> eventShortDtos = new ArrayList<>();
+        for (Event e : events) {
+            updateEventHits(e, "/events/", request.getRemoteAddr(), dto.getStart(), dto.getEnd());
+            int views = getEventViews(e);
+            eventShortDtos.add(EventMapper.eventToShort(e, views));
+        }
+        eventShortDtos.sort(comparator);
+        return eventShortDtos;
     }
 
     @Override
@@ -138,7 +146,8 @@ public class EventService implements IEventService {
         List<EventFullDto> returnList = new ArrayList<>();
         for (Event event : events) {
             Integer confirmedRequests = getConfirmedRequests(event.getId());
-            returnList.add(EventMapper.eventToFull(event, confirmedRequests, 0));
+            int views = getEventViews(event);
+            returnList.add(EventMapper.eventToFull(event, confirmedRequests, views));
         }
         return returnList;
     }
@@ -243,9 +252,25 @@ public class EventService implements IEventService {
         return returnList;
     }
 
-    private int updateHits(HttpServletRequest request, LocalDateTime start, LocalDateTime end) {
+    private int updateEventHits(HttpServletRequest request, LocalDateTime start, LocalDateTime end) {
         statsClient.post(HitDto.create("ewm-main-service", request.getRequestURI(), request.getRemoteAddr(), LocalDateTime.now()));
         ResponseEntity<Object> dto = statsClient.getHitsCount(start, end, List.of(request.getRequestURI()), true);
         return Integer.parseInt(dto.getBody().toString());
+    }
+
+    private void updateEventHits(Event event, String uri, String address, LocalDateTime start, LocalDateTime end) {
+        uri = uri + event.getId();
+        statsClient.post(HitDto.create("ewm-main-service", uri, address, LocalDateTime.now()));
+    }
+
+    private int getEventViews(Event event) {
+        String uri = "/events/" + event.getId();
+        ResponseEntity<Object> views = statsClient.getHitsCount(event.getPublishedDate(), LocalDateTime.now(),
+                List.of(uri), true);
+        try {
+            return Integer.parseInt(views.getBody().toString());
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 }

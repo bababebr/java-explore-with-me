@@ -110,7 +110,6 @@ public class CompilationService implements ICompilationService {
         } catch (NumberFormatException e) {
             return 0;
         }
-
     }
 
 }
