@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 @Table(name = "comments")
 @Getter
 @Setter
-@RequiredArgsConstructor
 @AllArgsConstructor(staticName = "create")
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -29,6 +28,5 @@ public class Comment {
     Event event;
     String text;
     LocalDateTime created;
-    Boolean impression;
 
 }

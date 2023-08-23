@@ -31,6 +31,4 @@ public class CommentDto {
     @PastOrPresent
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime created;
-    @NotNull
-    Boolean impression;
 }

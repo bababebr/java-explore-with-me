@@ -7,14 +7,17 @@ import ru.practicum.ewm.models.comments.Comment;
 import ru.practicum.ewm.models.comments.CommentDto;
 import ru.practicum.ewm.models.comments.NewCommentDto;
 import ru.practicum.ewm.models.event.Event;
+import ru.practicum.ewm.models.participantRequest.ParticipantRequest;
 import ru.practicum.ewm.models.user.User;
 import ru.practicum.ewm.repository.CommentRepository;
 import ru.practicum.ewm.repository.EventRepository;
+import ru.practicum.ewm.repository.ParticipantRepository;
 import ru.practicum.ewm.repository.UserRepository;
 import ru.practicum.ewm.service.interfaces.ICommentService;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 public class CommentService implements ICommentService {
@@ -22,13 +25,16 @@ public class CommentService implements ICommentService {
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
     private final CommentRepository commentRepository;
+    private final ParticipantRepository participantRepository;
+
 
     @Autowired
     public CommentService(UserRepository userRepository, EventRepository eventRepository,
-                          CommentRepository commentRepository) {
+                          CommentRepository commentRepository, ParticipantRepository participantRepository) {
         this.userRepository = userRepository;
         this.eventRepository = eventRepository;
         this.commentRepository = commentRepository;
+        this.participantRepository = participantRepository;
     }
 
     @Override
@@ -37,6 +43,7 @@ public class CommentService implements ICommentService {
                 -> new NoSuchElementException(String.format("User with ID=%s not found", userId)));
         Event event = eventRepository.findById(eventId).orElseThrow(()
                 -> new NoSuchElementException(String.format("Event with ID=%s not found", eventId)));
+        addCommentValidation(user, event, dto);
         Comment c = commentRepository.save(CommentMapper.newDtoToComment(dto, user, event));
         return CommentMapper.commentToDto(c);
     }
@@ -64,5 +71,15 @@ public class CommentService implements ICommentService {
     @Override
     public CommentDto delete(Long commentId) {
         return null;
+    }
+
+    private void addCommentValidation(User user, Event event, NewCommentDto dto) {
+        Optional<ParticipantRequest> request = participantRepository.findByUserIdAndEventId(user.getId(), event.getId());
+
+        if (!(request.isPresent() || event.getInitiator().getId().equals(user.getId()))) {
+            throw new IllegalStateException(String.format("USER with ID=%s not a participant or owner of Event with ID=%s.",
+                    user.getId(), user.getId()));
+        }
+
     }
 }

@@ -98,6 +98,7 @@ public class PrivateController {
      * Comments
      */
     @PostMapping("/{userId}/comments/{eventId}")
+    @ResponseStatus(HttpStatus.CREATED)
     public CommentDto postComment(@PathVariable Long userId, @PathVariable Long eventId,
                                   @Valid @RequestBody NewCommentDto dto) {
         return commentService.add(userId, eventId, dto);
