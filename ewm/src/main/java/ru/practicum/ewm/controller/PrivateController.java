@@ -3,12 +3,16 @@ package ru.practicum.ewm.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.ewm.models.comments.CommentDto;
+import ru.practicum.ewm.models.comments.NewCommentDto;
 import ru.practicum.ewm.models.event.EventFullDto;
 import ru.practicum.ewm.models.event.EventShortDto;
 import ru.practicum.ewm.models.event.EventUpdateDto;
 import ru.practicum.ewm.models.event.NewEventDto;
 import ru.practicum.ewm.models.participantRequest.ParticipantRequestDto;
 import ru.practicum.ewm.models.participantRequest.ParticipantRequestUpdateDto;
+import ru.practicum.ewm.service.CommentService;
+import ru.practicum.ewm.service.interfaces.ICommentService;
 import ru.practicum.ewm.service.interfaces.IEventService;
 import ru.practicum.ewm.service.interfaces.IRequestService;
 
@@ -23,10 +27,14 @@ public class PrivateController {
     private final IEventService eventService;
     private final IRequestService requestService;
 
+    private final ICommentService commentService;
+
     @Autowired
-    public PrivateController(IEventService eventService, IRequestService requestService) {
+    public PrivateController(IEventService eventService, IRequestService requestService,
+                             CommentService commentService) {
         this.eventService = eventService;
         this.requestService = requestService;
+        this.commentService = commentService;
     }
 
     /**
@@ -84,5 +92,14 @@ public class PrivateController {
     @PatchMapping("/{userId}/requests/{requestId}/cancel")
     public ParticipantRequestDto cancelRequest(@PathVariable Long userId, @PathVariable Long requestId) {
         return requestService.cancelRequest(userId, requestId);
+    }
+
+    /**
+     * Comments
+     */
+    @PostMapping("/{userId}/comments/{eventId}")
+    public CommentDto postComment(@PathVariable Long userId, @PathVariable Long eventId,
+                                  @Valid @RequestBody NewCommentDto dto) {
+        return commentService.add(userId, eventId, dto);
     }
 }
