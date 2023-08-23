@@ -4,10 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.validator.constraints.Length;
-import ru.practicum.ewm.models.event.Event;
-import ru.practicum.ewm.models.event.EventShortDto;
-import ru.practicum.ewm.models.user.User;
-import ru.practicum.ewm.models.user.UserDtoShort;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;

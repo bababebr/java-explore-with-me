@@ -1,5 +1,6 @@
 DROP TABLE IF EXISTS participant_request, location, users, category;
 DROP TABLE IF EXISTS compilation, event CASCADE;
+DROP TABLE IF EXISTS comments;
 
 CREATE TABLE IF NOT EXISTS event
 (
