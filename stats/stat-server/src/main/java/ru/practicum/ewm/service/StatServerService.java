@@ -4,10 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.dto.HitDto;
 import ru.practicum.ewm.dto.HitDtoShort;
-import ru.practicum.ewm.model.HitMapper;
 import ru.practicum.ewm.model.Hit;
+import ru.practicum.ewm.model.HitMapper;
 import ru.practicum.ewm.repository.StatRepository;
 
+import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,32 +25,41 @@ public class StatServerService implements IStatServerService {
 
     @Override
     public HitDto add(HitDto dto) {
-        HitDto result = HitMapper.hitToDto(repository.save(HitMapper.dtoToHit(dto)));
-        return result;
+        return HitMapper.hitToDto(repository.save(HitMapper.dtoToHit(dto)));
     }
 
     @Override
     public List<HitDtoShort> get(LocalDateTime start, LocalDateTime stop, List<String> uris, boolean unique) {
-        List<Hit> hits;
-        /*
-        TODO reduce ifelse clause amount by proper querry from db
-         */
-        if (uris == null || uris.isEmpty()) {
-            if (unique) {
-                hits = repository.getUniqueIpAndUri(start, stop);
-            } else {
-                hits = repository.findAllByTimestampAfterAndTimestampBefore(start, stop);
+        try {
+            if (stop.isBefore(start)) {
+                throw new ValidationException("End date cannot be before start.");
             }
-        } else {
-            if (unique) {
-                hits = repository.getUniqueIpAndUriWithUris(start, stop);
-            } else {
-                hits = repository.findAllByTimestampAfterAndTimestampBeforeWithUri(start, stop, uris);
-            }
+        } catch (NullPointerException e) {
+            start = LocalDateTime.now().minusYears(2);
+            stop = LocalDateTime.now().plusYears(2);
         }
+        List<Hit> hits = repository.findUniqueHits(start, stop, uris, unique);
+
         List<HitDtoShort> resultDto = hits.stream().map(HitMapper::hitToDtoShort).collect(Collectors.toList());
         resultDto = setHitForSingleUri(resultDto, hits);
         return resultDto;
+    }
+
+    @Override
+    public Integer getHits(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
+        try {
+            if (end.isBefore(start)) {
+                throw new ValidationException("End date cannot be before start.");
+            }
+        } catch (NullPointerException e) {
+            start = LocalDateTime.now().minusYears(2);
+            end = LocalDateTime.now().plusYears(2);
+        }
+        if (unique) {
+            return repository.countUniqueHits(start, end, uris);
+        } else {
+            return repository.countHits(start, end, uris);
+        }
     }
 
     private List<HitDtoShort> setHitForSingleUri(List<HitDtoShort> dtoShort, List<Hit> hits) {
@@ -59,8 +69,7 @@ public class StatServerService implements IStatServerService {
         }
         dtoShort.sort((o1, o2) -> (o1.getHits() > o2.getHits()) ? -1 :
                 (o1.getHits() < o2.getHits()) ? 1 : 0);
+        return dtoShort.stream().distinct().collect(Collectors.toList());
 
-        List<HitDtoShort> result = dtoShort.stream().distinct().collect(Collectors.toList());
-        return result;
     }
 }
