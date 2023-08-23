@@ -26,6 +26,7 @@ import javax.validation.ValidationException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -126,13 +127,15 @@ public class EventService implements IEventService {
 
         List<Event> events = repository.getEvents(dto.getCategories(), dto.getOnlyAvailable(), dto.getPaid(),
                 dto.getText(), dto.getStart(), dto.getEnd(), PageRequest.of(from, size));
-        List<EventShortDto> eventShortDtos = new ArrayList<>();
-        for (Event e : events) {
-            updateEventHits(e, "/events/", request.getRemoteAddr(), dto.getStart(), dto.getEnd());
-            int views = getEventViews(e);
-            eventShortDtos.add(EventMapper.eventToShort(e, views));
-        }
-        eventShortDtos.sort(comparator);
+
+        HashMap<Event, String> eventsUrlMap = new HashMap<>();
+
+        events.stream().map(e -> eventsUrlMap.put(e, "/events/" + e.getId()));
+        eventsUrlMap.entrySet().stream().forEach(eventStringEntry -> updateEventHits(eventStringEntry.getKey(),
+                eventStringEntry.getValue(), request.getRemoteAddr()));
+
+        List<EventShortDto> eventShortDtos = events.stream().map(e -> EventMapper.eventToShort(e, getEventViews(e)))
+                .sorted(comparator).collect(Collectors.toList());
         return eventShortDtos;
     }
 
@@ -142,12 +145,9 @@ public class EventService implements IEventService {
                                             LocalDateTime rangeStart, LocalDateTime rangeEnd, int from, int size) {
         List<Event> events = repository.getUserEvents(usersId, states, categoriesId, rangeStart, rangeEnd,
                 PageRequest.of(from, size));
-        List<EventFullDto> returnList = new ArrayList<>();
-        for (Event event : events) {
-            Integer confirmedRequests = getConfirmedRequests(event.getId());
-            int views = getEventViews(event);
-            returnList.add(EventMapper.eventToFull(event, confirmedRequests, views));
-        }
+
+        List<EventFullDto> returnList = events.stream().map(e -> EventMapper.eventToFull(e, getConfirmedRequests(e.getId()),
+                getEventViews(e))).collect(Collectors.toList());
         return returnList;
     }
 
@@ -257,7 +257,7 @@ public class EventService implements IEventService {
         return Integer.parseInt(dto.getBody().toString());
     }
 
-    private void updateEventHits(Event event, String uri, String address, LocalDateTime start, LocalDateTime end) {
+    private void updateEventHits(Event event, String uri, String address) {
         uri = uri + event.getId();
         statsClient.post(HitDto.create("ewm-main-service", uri, address, LocalDateTime.now()));
     }

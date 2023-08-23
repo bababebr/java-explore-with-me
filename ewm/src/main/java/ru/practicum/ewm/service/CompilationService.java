@@ -19,6 +19,7 @@ import ru.practicum.ewm.service.interfaces.ICompilationService;
 import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -63,14 +64,14 @@ public class CompilationService implements ICompilationService {
     @Transactional(readOnly = true)
     public List<CompilationDto> getCompilations(int from, int size) {
         List<Compilation> compilations = repository.getAll(PageRequest.of(from, size));
-        List<CompilationDto> returnDtoList = new ArrayList<>();
-        for (Compilation c : compilations) {
-            HashMap<Long, Integer> eventViewsMap = new HashMap<>();
-            for (Event e : c.getEvent()) {
-                eventViewsMap.put(e.getId(), getEventViews(e));
-            }
-            returnDtoList.add(CompilationMapper.compilationToDto(c, eventViewsMap));
-        }
+
+        HashMap<Long, Integer> eventViewsMap = new HashMap<>();
+        List<Event> events = new ArrayList<>();
+        compilations.stream().map(c -> events.addAll(c.getEvent()));
+        events.stream().forEach(e -> eventViewsMap.put(e.getId(), getEventViews(e)));
+
+        List<CompilationDto> returnDtoList = compilations.stream().map(c -> CompilationMapper
+                .compilationToDto(c, eventViewsMap)).collect(Collectors.toList());
         return returnDtoList;
     }
 
@@ -80,9 +81,7 @@ public class CompilationService implements ICompilationService {
         Compilation compilation = repository.findById(id).orElseThrow(
                 () -> new NoSuchElementException("Compilation not found."));
         HashMap<Long, Integer> eventViewsMap = new HashMap<>();
-        for (Event e : compilation.getEvent()) {
-            eventViewsMap.put(e.getId(), getEventViews(e));
-        }
+        compilation.getEvent().stream().map(e -> eventViewsMap.put(e.getId(), getEventViews(e)));
         return CompilationMapper.compilationToDto(compilation, eventViewsMap);
     }
 

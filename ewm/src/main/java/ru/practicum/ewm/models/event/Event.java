@@ -13,7 +13,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "Event")
+@Table(name = "event")
 @Getter
 @Setter
 @NoArgsConstructor

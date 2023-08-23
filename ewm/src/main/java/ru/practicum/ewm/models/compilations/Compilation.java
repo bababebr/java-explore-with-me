@@ -18,7 +18,7 @@ public class Compilation {
     Long id;
     @ManyToMany
     @JoinTable(
-            name = "compilation_event",
+            name = "compilation_events",
             joinColumns = @JoinColumn(name = "compilation_id"),
             inverseJoinColumns = @JoinColumn(name = "event_id"))
     Set<Event> event;
