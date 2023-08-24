@@ -1,6 +1,5 @@
 package ru.practicum.ewm.service.interfaces;
 
-import ru.practicum.ewm.models.comments.Comment;
 import ru.practicum.ewm.models.comments.CommentDto;
 import ru.practicum.ewm.models.comments.NewCommentDto;
 

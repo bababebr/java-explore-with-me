@@ -86,7 +86,7 @@ public class CommentService implements ICommentService {
     public CommentDto delete(Long userId, Long commentId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new NoSuchElementException(
                 String.format("No comment with ID=%s", commentId)));
-        if (comment.getUser().getId() == userId || comment.getEvent().getInitiator().getId() == userId) {
+        if (comment.getUser().getId().equals(userId) || comment.getEvent().getInitiator().getId().equals(userId)) {
             commentRepository.delete(comment);
             return CommentMapper.commentToDto(comment);
         } else {

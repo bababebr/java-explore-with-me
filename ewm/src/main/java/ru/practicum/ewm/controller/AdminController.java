@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.enums.EventStatus;
 import ru.practicum.ewm.models.category.CategoryDto;
 import ru.practicum.ewm.models.category.NewCategoryDto;
-import ru.practicum.ewm.models.comments.Comment;
 import ru.practicum.ewm.models.comments.CommentDto;
 import ru.practicum.ewm.models.compilations.CompilationDto;
 import ru.practicum.ewm.models.compilations.NewCompilationDto;
