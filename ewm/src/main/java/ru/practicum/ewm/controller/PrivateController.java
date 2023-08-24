@@ -103,4 +103,16 @@ public class PrivateController {
                                   @Valid @RequestBody NewCommentDto dto) {
         return commentService.add(userId, eventId, dto);
     }
+
+    @PatchMapping("/{userId}/comments/{eventId}")
+    public CommentDto updateComment(@PathVariable Long userId, @PathVariable Long eventId,
+                                    @Valid @RequestBody NewCommentDto dto) {
+        return commentService.update(userId, eventId, dto);
+    }
+
+    @DeleteMapping("/{userId}/comments/{commentId}")
+    public CommentDto deleteComment(@PathVariable Long userId, @PathVariable Long commentId) {
+        return commentService.delete(userId, commentId);
+    }
+
 }

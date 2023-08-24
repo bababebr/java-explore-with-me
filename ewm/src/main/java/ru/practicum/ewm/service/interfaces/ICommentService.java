@@ -10,14 +10,14 @@ public interface ICommentService {
 
     CommentDto add(Long userId, Long eventId, NewCommentDto dto);
 
-    CommentDto update(CommentDto dto);
+    CommentDto update(Long userId, Long eventId, NewCommentDto dto);
 
     List<CommentDto> getEventComments(Long eventId);
 
     List<CommentDto> getUserComments(Long userId);
 
-    Comment getById(Long commentId);
+    CommentDto getById(Long commentId);
 
-    CommentDto delete(Long commentId);
+    CommentDto delete(Long userId, Long commentId);
 
 }
