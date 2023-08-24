@@ -135,6 +135,7 @@ public class AdminController {
     public List<CommentDto> getEventComments(@PathVariable Long eventId) {
         return commentService.getEventComments(eventId);
     }
+
     @GetMapping("/comments/user/{userId}")
     public List<CommentDto> getUserComments(@PathVariable Long userId) {
         return commentService.getUserComments(userId);

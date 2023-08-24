@@ -86,7 +86,7 @@ public class CommentService implements ICommentService {
     public CommentDto delete(Long userId, Long commentId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new NoSuchElementException(
                 String.format("No comment with ID=%s", commentId)));
-        if(comment.getUser().getId() == userId || comment.getEvent().getInitiator().getId() == userId){
+        if (comment.getUser().getId() == userId || comment.getEvent().getInitiator().getId() == userId) {
             commentRepository.delete(comment);
             return CommentMapper.commentToDto(comment);
         } else {
@@ -96,7 +96,7 @@ public class CommentService implements ICommentService {
 
     private void addCommentValidation(User user, Event event) {
         Optional<ParticipantRequest> request = participantRepository.findByUserIdAndEventId(user.getId(), event.getId());
-        if(commentRepository.findByUserIdAndEventId(user.getId(), event.getId()).isPresent()) {
+        if (commentRepository.findByUserIdAndEventId(user.getId(), event.getId()).isPresent()) {
             throw new IllegalStateException(String.format("Event ID=%s already has comment form User ID=%s",
                     event.getId(), user.getId()));
         }
