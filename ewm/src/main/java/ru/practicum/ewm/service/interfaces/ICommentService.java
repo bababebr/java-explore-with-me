@@ -16,12 +16,11 @@ public interface ICommentService {
 
     List<CommentDto> getEventComments(Long eventId);
 
-    List<CommentDto> getUserComments(Long userId);
-
-    CommentDto getById(Long commentId);
+    List<CommentDto> getUserComments(Long userId, Long eventId);
 
     CommentDto delete(Long userId, Long commentId);
 
     CommentDto deleteByAdmin(Long commentId);
 
+    CommentDto getUserComment(Long userId, Long commentId);
 }

@@ -116,4 +116,13 @@ public class PrivateController {
         return commentService.delete(userId, commentId);
     }
 
+    @GetMapping("/{userId}/comments/event/{eventId}")
+    public List<CommentDto> getUsersComments(@PathVariable Long userId, @PathVariable Long eventId) {
+        return commentService.getUserComments(userId, eventId);
+    }
+
+    @GetMapping("{userId}/comments/{commentId}")
+    public CommentDto getUserComment(@PathVariable Long userId, @PathVariable Long commentId) {
+        return commentService.getUserComment(userId, commentId);
+    }
 }

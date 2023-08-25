@@ -2,13 +2,13 @@ package ru.practicum.ewm.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.practicum.ewm.enums.EventStatus;
 import ru.practicum.ewm.mapper.CommentMapper;
 import ru.practicum.ewm.models.comments.Comment;
 import ru.practicum.ewm.models.comments.CommentDto;
 import ru.practicum.ewm.models.comments.NewCommentDto;
 import ru.practicum.ewm.models.comments.UpdateCommentDto;
 import ru.practicum.ewm.models.event.Event;
-import ru.practicum.ewm.models.participantRequest.ParticipantRequest;
 import ru.practicum.ewm.models.user.User;
 import ru.practicum.ewm.repository.CommentRepository;
 import ru.practicum.ewm.repository.EventRepository;
@@ -18,7 +18,6 @@ import ru.practicum.ewm.service.interfaces.ICommentService;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -55,11 +54,12 @@ public class CommentService implements ICommentService {
         Comment comment = commentRepository.findById(dto.getId()).orElseThrow(()
                 -> new NoSuchElementException(String
                 .format("Comment with ID=%s not found", dto.getId())));
-        if(!comment.getUser().getId().equals(userId)) {
+        if (!comment.getUser().getId().equals(userId)) {
             throw new IllegalArgumentException("Its not your comment.");
         }
         if (!comment.getText().equals(dto.getText())) {
             comment.setText(dto.getText());
+            comment.setUpdated(dto.getUpdated());
         } else {
             throw new IllegalArgumentException("Update with the same text is prohibited.");
         }
@@ -73,6 +73,7 @@ public class CommentService implements ICommentService {
                 .format("Comment with ID=%s not found", dto.getId())));
         if (!comment.getText().equals(dto.getText())) {
             comment.setText(dto.getText());
+            comment.setUpdated(dto.getUpdated());
         } else {
             throw new IllegalArgumentException("Update with the same text is prohibited.");
         }
@@ -87,28 +88,24 @@ public class CommentService implements ICommentService {
     }
 
     @Override
-    public List<CommentDto> getUserComments(Long userId) {
-        List<Comment> comments = commentRepository.findByUserId(userId);
+    public List<CommentDto> getUserComments(Long userId, Long eventId) {
+        List<Comment> comments = commentRepository.findAllByUserIdAndEventId(userId, eventId);
         return comments.stream().map(CommentMapper::commentToDto).collect(Collectors.toList());
     }
 
     @Override
-    public CommentDto getById(Long commentId) {
-        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new NoSuchElementException(
-                String.format("No comment with ID=%s", commentId)));
+    public CommentDto getUserComment(Long userId, Long commentId) {
+        Comment comment = commentRepository.findAllByIdAndUserId(commentId, userId).orElseThrow(() ->
+                new NoSuchElementException(String.format("User ID=%s don't have Comment with ID=%s", userId, commentId)));
         return CommentMapper.commentToDto(comment);
     }
 
     @Override
     public CommentDto delete(Long userId, Long commentId) {
-        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new NoSuchElementException(
-                String.format("No comment with ID=%s", commentId)));
-        if (comment.getUser().getId().equals(userId) || comment.getEvent().getInitiator().getId().equals(userId)) {
-            commentRepository.delete(comment);
-            return CommentMapper.commentToDto(comment);
-        } else {
-            throw new IllegalStateException("Comment can be deleted by owner or admin");
-        }
+        Comment comment = commentRepository.findAllByIdAndUserId(commentId, userId).orElseThrow(() ->
+                new NoSuchElementException(String.format("Can't delete comment. Comment ID=%s not exist", commentId)));
+        commentRepository.delete(comment);
+        return CommentMapper.commentToDto(comment);
     }
 
     @Override
@@ -120,15 +117,12 @@ public class CommentService implements ICommentService {
     }
 
     private void addCommentValidation(User user, Event event) {
-        Optional<ParticipantRequest> request = participantRepository.findByUserIdAndEventId(user.getId(), event.getId());
         if (commentRepository.findByUserIdAndEventId(user.getId(), event.getId()).isPresent()) {
             throw new IllegalStateException(String.format("Event ID=%s already has comment form User ID=%s",
                     event.getId(), user.getId()));
         }
-        if (!(request.isPresent() || event.getInitiator().getId().equals(user.getId()))) {
-            throw new IllegalStateException(String.format("USER with ID=%s not a participant or owner of Event with ID=%s.",
-                    user.getId(), event.getId()));
+        if (!event.getState().equals(EventStatus.PUBLISHED)) {
+            throw new IllegalStateException("Event not published yet.");
         }
-
     }
 }
