@@ -6,6 +6,7 @@ import ru.practicum.ewm.mapper.CommentMapper;
 import ru.practicum.ewm.models.comments.Comment;
 import ru.practicum.ewm.models.comments.CommentDto;
 import ru.practicum.ewm.models.comments.NewCommentDto;
+import ru.practicum.ewm.models.comments.UpdateCommentDto;
 import ru.practicum.ewm.models.event.Event;
 import ru.practicum.ewm.models.participantRequest.ParticipantRequest;
 import ru.practicum.ewm.models.user.User;
@@ -50,10 +51,26 @@ public class CommentService implements ICommentService {
     }
 
     @Override
-    public CommentDto update(Long userId, Long eventId, NewCommentDto dto) {
-        Comment comment = commentRepository.findByUserIdAndEventId(userId, eventId).orElseThrow(()
+    public CommentDto update(Long userId, UpdateCommentDto dto) {
+        Comment comment = commentRepository.findById(dto.getId()).orElseThrow(()
                 -> new NoSuchElementException(String
-                .format("Event with ID=%S don't have comment form User ID=%s", eventId, userId)));
+                .format("Comment with ID=%s not found", dto.getId())));
+        if(!comment.getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("Its not your comment.");
+        }
+        if (!comment.getText().equals(dto.getText())) {
+            comment.setText(dto.getText());
+        } else {
+            throw new IllegalArgumentException("Update with the same text is prohibited.");
+        }
+        return CommentMapper.commentToDto(commentRepository.save(comment));
+    }
+
+    @Override
+    public CommentDto updateByAdmin(UpdateCommentDto dto) {
+        Comment comment = commentRepository.findById(dto.getId()).orElseThrow(()
+                -> new NoSuchElementException(String
+                .format("Comment with ID=%s not found", dto.getId())));
         if (!comment.getText().equals(dto.getText())) {
             comment.setText(dto.getText());
         } else {
@@ -92,6 +109,14 @@ public class CommentService implements ICommentService {
         } else {
             throw new IllegalStateException("Comment can be deleted by owner or admin");
         }
+    }
+
+    @Override
+    public CommentDto deleteByAdmin(Long commentId) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new NoSuchElementException(
+                String.format("No comment with ID=%s", commentId)));
+        commentRepository.delete(comment);
+        return CommentMapper.commentToDto(comment);
     }
 
     private void addCommentValidation(User user, Event event) {

@@ -10,6 +10,7 @@ import ru.practicum.ewm.enums.EventStatus;
 import ru.practicum.ewm.models.category.CategoryDto;
 import ru.practicum.ewm.models.category.NewCategoryDto;
 import ru.practicum.ewm.models.comments.CommentDto;
+import ru.practicum.ewm.models.comments.UpdateCommentDto;
 import ru.practicum.ewm.models.compilations.CompilationDto;
 import ru.practicum.ewm.models.compilations.NewCompilationDto;
 import ru.practicum.ewm.models.event.EventFullDto;
@@ -130,18 +131,13 @@ public class AdminController {
     /**
      * Comments
      */
-    @GetMapping("/comments/event/{eventId}")
-    public List<CommentDto> getEventComments(@PathVariable Long eventId) {
-        return commentService.getEventComments(eventId);
+    @DeleteMapping("/comments/{commentId}")
+    public CommentDto deleteComment(@PathVariable Long commentId) {
+        return commentService.deleteByAdmin(commentId);
     }
 
-    @GetMapping("/comments/user/{userId}")
-    public List<CommentDto> getUserComments(@PathVariable Long userId) {
-        return commentService.getUserComments(userId);
-    }
-
-    @GetMapping("/comments/{commentId}")
-    public CommentDto getComment(@PathVariable Long commentId) {
-        return commentService.getById(commentId);
+    @PatchMapping("/comments")
+    public CommentDto updateComment(@Valid @RequestBody UpdateCommentDto dto) {
+        return commentService.updateByAdmin(dto);
     }
 }

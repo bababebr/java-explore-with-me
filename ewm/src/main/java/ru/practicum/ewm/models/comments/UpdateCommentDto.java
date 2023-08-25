@@ -14,11 +14,13 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class NewCommentDto {
+public class UpdateCommentDto {
+    @NotNull
+    Long id;
     @NotBlank
     @Length(max = 256)
     String text;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    LocalDateTime created = LocalDateTime.now();
+    LocalDateTime updated = LocalDateTime.now();
 
 }

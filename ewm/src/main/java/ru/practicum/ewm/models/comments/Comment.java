@@ -28,5 +28,6 @@ public class Comment {
     Event event;
     String text;
     LocalDateTime created;
+    LocalDateTime updated;
 
 }

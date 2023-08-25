@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.models.comments.CommentDto;
 import ru.practicum.ewm.models.comments.NewCommentDto;
+import ru.practicum.ewm.models.comments.UpdateCommentDto;
 import ru.practicum.ewm.models.event.EventFullDto;
 import ru.practicum.ewm.models.event.EventShortDto;
 import ru.practicum.ewm.models.event.EventUpdateDto;
@@ -104,10 +105,10 @@ public class PrivateController {
         return commentService.add(userId, eventId, dto);
     }
 
-    @PatchMapping("/{userId}/comments/{eventId}")
-    public CommentDto updateComment(@PathVariable Long userId, @PathVariable Long eventId,
-                                    @Valid @RequestBody NewCommentDto dto) {
-        return commentService.update(userId, eventId, dto);
+    @PatchMapping("/{userId}/comments/")
+    public CommentDto updateComment(@PathVariable Long userId,
+                                    @Valid @RequestBody UpdateCommentDto dto) {
+        return commentService.update(userId, dto);
     }
 
     @DeleteMapping("/{userId}/comments/{commentId}")
