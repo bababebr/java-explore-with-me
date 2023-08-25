@@ -18,6 +18,8 @@ import java.time.LocalDateTime;
 public class CommentDto {
 
     @NotNull
+    Long id;
+    @NotNull
     Long userId;
     @NotNull
     Long eventId;

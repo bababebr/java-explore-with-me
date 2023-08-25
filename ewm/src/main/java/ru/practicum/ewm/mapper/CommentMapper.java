@@ -13,7 +13,7 @@ public class CommentMapper {
     }
 
     public static CommentDto commentToDto(Comment comment) {
-        return CommentDto.create(comment.getUser().getId(), comment.getEvent().getId(), comment.getText(),
+        return CommentDto.create(comment.getId(), comment.getUser().getId(), comment.getEvent().getId(), comment.getText(),
                 comment.getCreated());
     }
 
