@@ -9,7 +9,7 @@ import ru.practicum.ewm.models.user.User;
 public class CommentMapper {
 
     public static Comment newDtoToComment(NewCommentDto dto, User user, Event event) {
-        return Comment.create(0L, user, event, dto.getText(), dto.getCreated(), dto.getCreated());
+        return Comment.create(0L, user, event, dto.getText(), dto.getCreated(), null);
     }
 
     public static CommentDto commentToDto(Comment comment) {

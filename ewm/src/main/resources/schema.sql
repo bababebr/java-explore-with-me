@@ -73,6 +73,6 @@ CREATE TABLE IF NOT EXISTS comments
     EVENT_ID BIGINT                                              NOT NULL,
     TEXT     VARCHAR(256),
     CREATED  TIMESTAMP                                           NOT NULL,
-    UPDATED  TIMESTAMP                                           NOT NULL,
+    UPDATED  TIMESTAMP,
     CONSTRAINT user_event_id UNIQUE (USER_ID, EVENT_ID)
 )
