@@ -9,15 +9,14 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.enums.EventStatus;
 import ru.practicum.ewm.models.category.CategoryDto;
 import ru.practicum.ewm.models.category.NewCategoryDto;
+import ru.practicum.ewm.models.comments.CommentDto;
+import ru.practicum.ewm.models.comments.UpdateCommentDto;
 import ru.practicum.ewm.models.compilations.CompilationDto;
 import ru.practicum.ewm.models.compilations.NewCompilationDto;
 import ru.practicum.ewm.models.event.EventFullDto;
 import ru.practicum.ewm.models.event.EventUpdateDto;
 import ru.practicum.ewm.models.user.UserDto;
-import ru.practicum.ewm.service.interfaces.ICategoryService;
-import ru.practicum.ewm.service.interfaces.ICompilationService;
-import ru.practicum.ewm.service.interfaces.IEventService;
-import ru.practicum.ewm.service.interfaces.IUserService;
+import ru.practicum.ewm.service.interfaces.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
@@ -33,14 +32,17 @@ public class AdminController {
     ICategoryService categoryService;
     IEventService eventService;
     ICompilationService compilationService;
+    ICommentService commentService;
 
     @Autowired
     public AdminController(IUserService userService, ICategoryService categoryService,
-                           IEventService eventService, ICompilationService compilationService) {
+                           IEventService eventService, ICompilationService compilationService,
+                           ICommentService commentService) {
         this.userService = userService;
         this.categoryService = categoryService;
         this.eventService = eventService;
         this.compilationService = compilationService;
+        this.commentService = commentService;
     }
 
     /**
@@ -124,5 +126,18 @@ public class AdminController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteCompilation(@PathVariable Long id) {
         compilationService.delete(id);
+    }
+
+    /**
+     * Comments
+     */
+    @DeleteMapping("/comments/{commentId}")
+    public CommentDto deleteComment(@PathVariable Long commentId) {
+        return commentService.deleteByAdmin(commentId);
+    }
+
+    @PatchMapping("/comments")
+    public CommentDto updateComment(@Valid @RequestBody UpdateCommentDto dto) {
+        return commentService.updateByAdmin(dto);
     }
 }

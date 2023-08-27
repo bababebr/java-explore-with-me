@@ -5,11 +5,13 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.enums.Sort;
 import ru.practicum.ewm.models.category.CategoryDto;
+import ru.practicum.ewm.models.comments.CommentDto;
 import ru.practicum.ewm.models.compilations.CompilationDto;
 import ru.practicum.ewm.models.event.EventFullDto;
 import ru.practicum.ewm.models.event.EventSearchDto;
 import ru.practicum.ewm.models.event.EventShortDto;
 import ru.practicum.ewm.service.CategoryService;
+import ru.practicum.ewm.service.CommentService;
 import ru.practicum.ewm.service.CompilationService;
 import ru.practicum.ewm.service.EventService;
 
@@ -23,17 +25,17 @@ import java.util.List;
 public class PublicController {
 
     private final EventService eventService;
-
     private final CompilationService compilationService;
-
     private final CategoryService categoryService;
+    private final CommentService commentService;
 
     @Autowired
     public PublicController(EventService eventService, CompilationService compilationService,
-                            CategoryService categoryService) {
+                            CategoryService categoryService, CommentService commentService) {
         this.eventService = eventService;
         this.compilationService = compilationService;
         this.categoryService = categoryService;
+        this.commentService = commentService;
     }
 
     @GetMapping("/events")
@@ -76,6 +78,11 @@ public class PublicController {
     @GetMapping("/categories/{id}")
     public CategoryDto getCategory(@PathVariable Long id) {
         return categoryService.get(id);
+    }
+
+    @GetMapping("/comments/{eventId}")
+    public List<CommentDto> getEventComments(@PathVariable Long eventId) {
+        return commentService.getEventComments(eventId);
     }
 
 }

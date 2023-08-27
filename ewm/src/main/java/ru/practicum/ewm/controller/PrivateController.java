@@ -3,12 +3,17 @@ package ru.practicum.ewm.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.ewm.models.comments.CommentDto;
+import ru.practicum.ewm.models.comments.NewCommentDto;
+import ru.practicum.ewm.models.comments.UpdateCommentDto;
 import ru.practicum.ewm.models.event.EventFullDto;
 import ru.practicum.ewm.models.event.EventShortDto;
 import ru.practicum.ewm.models.event.EventUpdateDto;
 import ru.practicum.ewm.models.event.NewEventDto;
 import ru.practicum.ewm.models.participantRequest.ParticipantRequestDto;
 import ru.practicum.ewm.models.participantRequest.ParticipantRequestUpdateDto;
+import ru.practicum.ewm.service.CommentService;
+import ru.practicum.ewm.service.interfaces.ICommentService;
 import ru.practicum.ewm.service.interfaces.IEventService;
 import ru.practicum.ewm.service.interfaces.IRequestService;
 
@@ -23,10 +28,14 @@ public class PrivateController {
     private final IEventService eventService;
     private final IRequestService requestService;
 
+    private final ICommentService commentService;
+
     @Autowired
-    public PrivateController(IEventService eventService, IRequestService requestService) {
+    public PrivateController(IEventService eventService, IRequestService requestService,
+                             CommentService commentService) {
         this.eventService = eventService;
         this.requestService = requestService;
+        this.commentService = commentService;
     }
 
     /**
@@ -84,5 +93,36 @@ public class PrivateController {
     @PatchMapping("/{userId}/requests/{requestId}/cancel")
     public ParticipantRequestDto cancelRequest(@PathVariable Long userId, @PathVariable Long requestId) {
         return requestService.cancelRequest(userId, requestId);
+    }
+
+    /**
+     * Comments
+     */
+    @PostMapping("/{userId}/comments/{eventId}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public CommentDto postComment(@PathVariable Long userId, @PathVariable Long eventId,
+                                  @Valid @RequestBody NewCommentDto dto) {
+        return commentService.add(userId, eventId, dto);
+    }
+
+    @PatchMapping("/{userId}/comments/")
+    public CommentDto updateComment(@PathVariable Long userId,
+                                    @Valid @RequestBody UpdateCommentDto dto) {
+        return commentService.update(userId, dto);
+    }
+
+    @DeleteMapping("/{userId}/comments/{commentId}")
+    public CommentDto deleteComment(@PathVariable Long userId, @PathVariable Long commentId) {
+        return commentService.delete(userId, commentId);
+    }
+
+    @GetMapping("/{userId}/comments/event/{eventId}")
+    public List<CommentDto> getUsersComments(@PathVariable Long userId, @PathVariable Long eventId) {
+        return commentService.getUserComments(userId, eventId);
+    }
+
+    @GetMapping("{userId}/comments/{commentId}")
+    public CommentDto getUserComment(@PathVariable Long userId, @PathVariable Long commentId) {
+        return commentService.getUserComment(userId, commentId);
     }
 }
