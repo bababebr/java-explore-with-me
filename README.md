@@ -1,2 +1,4 @@
 # java-explore-with-me
-[Template repository for ExploreWithMe project.](https://github.com/bababebr/java-explore-with-me/pull/5) https://github.com/bababebr/java-explore-with-me/pull/5
+Yandex.Practicum training project.
+App created to create and share your event and invite other people to participate
+Tech are in use: Springboot, PostgreSQL, Docker, JPA (Hibernate), WebClient, WebServer, Postman pre-scripted tests.
